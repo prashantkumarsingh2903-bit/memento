@@ -104,38 +104,7 @@ export const Home: React.FC<HomePageProps> = ({
       {/* ========================================================================= */}
       {/* CATEGORY 1: INPUT PART (Creation & Capture Studio)                         */}
       {/* ========================================================================= */}
-      <section className="space-y-4 p-5 sm:p-6 rounded-2xl bg-app-surface-secondary/40 dark:bg-[#26252F]/40 border border-app-border">
-        {/* Section Header with Category Badge */}
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          <div className="flex items-center gap-2.5">
-            <div className="p-1.5 rounded-xl bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 text-[#6C4FF6] dark:text-[#856DF8] border border-[#6C4FF6]/20">
-              <PenLine className="w-4 h-4" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="font-sans text-base sm:text-lg font-bold text-app-text">
-                  Input & Capture Hub
-                </h2>
-                <span className="text-[10px] uppercase font-bold tracking-wider text-[#6C4FF6] dark:text-[#856DF8] bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 px-2 py-0.5 rounded-full border border-[#6C4FF6]/20">
-                  Input System
-                </span>
-              </div>
-              <p className="text-xs text-app-text-secondary mt-0.5">
-                Select an input medium to express your feelings and document your day
-              </p>
-            </div>
-          </div>
-
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => onStartCapture('text')}
-            leftIcon={<Plus className="w-3.5 h-3.5" />}
-          >
-            New Note
-          </Button>
-        </div>
-
+      <section className="space-y-4">
         {/* 4 Capture Modality Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           {/* Speak / Voice */}
