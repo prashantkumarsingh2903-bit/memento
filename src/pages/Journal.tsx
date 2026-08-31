@@ -8,11 +8,13 @@ import {
   Heart,
   Layers,
   LayoutGrid,
+  Calendar as CalendarIcon,
 } from 'lucide-react';
 import type { JournalEntry, Mood, EntryType } from '../types';
 import type { EntryFilters } from '../hooks/useEntries';
 import { JournalCard } from '../components/journal/JournalCard';
 import { DayGroupedEntries } from '../components/journal/DayGroupedEntries';
+import { JournalCalendar } from '../components/journal/JournalCalendar';
 import { MOOD_OPTIONS } from '../components/common/MoodSelector';
 import { Button } from '../components/common/Button';
 
@@ -25,7 +27,7 @@ interface JournalPageProps {
   onEditEntry: (id: string) => void;
   onDeleteEntry: (id: string) => void;
   onToggleFavorite: (id: string) => void;
-  onStartCapture: (type: EntryType) => void;
+  onStartCapture: (type: EntryType, initialPrompt?: string, initialMood?: Mood) => void;
 }
 
 export const Journal: React.FC<JournalPageProps> = ({
@@ -41,7 +43,7 @@ export const Journal: React.FC<JournalPageProps> = ({
 }) => {
   const [showFilters, setShowFilters] = useState(false);
   const [timeRange, setTimeRange] = useState<'all' | 'week' | 'month' | 'year'>('all');
-  const [viewMode, setViewMode] = useState<'stacked' | 'grid'>('stacked');
+  const [viewMode, setViewMode] = useState<'stacked' | 'calendar' | 'grid'>('stacked');
 
   const entryTypeOptions: { value: EntryType | 'all'; label: string }[] = [
     { value: 'all', label: 'All types' },
@@ -142,7 +144,7 @@ export const Journal: React.FC<JournalPageProps> = ({
               })}
             </div>
 
-            {/* View Mode Toggle: Stacked by Day vs Grid */}
+            {/* View Mode Toggle: Stacked by Day vs Calendar vs Grid */}
             <div className="inline-flex p-1 rounded-xl bg-app-surface-secondary dark:bg-[#26252F] border border-app-border">
               <button
                 onClick={() => setViewMode('stacked')}
@@ -154,7 +156,20 @@ export const Journal: React.FC<JournalPageProps> = ({
                 title="Stack entries of each day together in unified day tabs"
               >
                 <Layers className="w-3.5 h-3.5" />
-                <span>Stacked by Day</span>
+                <span className="hidden sm:inline">Stacked by Day</span>
+                <span className="sm:hidden">Day</span>
+              </button>
+              <button
+                onClick={() => setViewMode('calendar')}
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  viewMode === 'calendar'
+                    ? 'bg-white dark:bg-[#201F28] text-[#6C4FF6] dark:text-[#856DF8] shadow-subtle'
+                    : 'text-app-text-secondary hover:text-app-text'
+                }`}
+                title="Interactive calendar matrix with date-by-date navigation"
+              >
+                <CalendarIcon className="w-3.5 h-3.5" />
+                <span>Calendar</span>
               </button>
               <button
                 onClick={() => setViewMode('grid')}
@@ -382,6 +397,15 @@ export const Journal: React.FC<JournalPageProps> = ({
               </Button>
             )}
           </div>
+        ) : viewMode === 'calendar' ? (
+          <JournalCalendar
+            entries={filteredByTime}
+            onOpenEntry={onOpenEntry}
+            onEditEntry={onEditEntry}
+            onDeleteEntry={onDeleteEntry}
+            onToggleFavorite={onToggleFavorite}
+            onStartCapture={onStartCapture}
+          />
         ) : viewMode === 'stacked' ? (
           <DayGroupedEntries
             entries={filteredByTime}

@@ -17,6 +17,7 @@ import { DayGroupedEntries } from '../components/journal/DayGroupedEntries';
 import { Button } from '../components/common/Button';
 import { QuoteOfTheDay, type MindfulQuote } from '../components/home/QuoteOfTheDay';
 import { HomeAnalytics } from '../components/home/HomeAnalytics';
+import { WeeklyCalendarStrip } from '../components/home/WeeklyCalendarStrip';
 
 interface HomePageProps {
   entries: JournalEntry[];
@@ -226,6 +227,14 @@ export const Home: React.FC<HomePageProps> = ({
             <span>Explore full journal</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
+        </div>
+
+        {/* Weekly Interactive Rhythm Calendar Strip */}
+        <div>
+          <WeeklyCalendarStrip
+            entries={entries}
+            onNavigateToCalendar={onNavigateToJournal}
+          />
         </div>
 
         {/* Analytics Visualizations: 4 metrics + curve + donut */}
