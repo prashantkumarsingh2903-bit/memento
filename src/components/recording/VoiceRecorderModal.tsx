@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Mic,
   Square,
@@ -10,6 +10,7 @@ import {
   Volume2,
   AlertCircle,
   X,
+  FileText,
 } from 'lucide-react';
 import type { JournalEntry, Mood } from '../../types';
 import { useAudioRecorder } from '../../hooks/useAudioRecorder';
@@ -22,7 +23,9 @@ import { aiService } from '../../services/ai/aiService';
 interface VoiceRecorderModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSaveVoiceEntry: (entryData: Omit<JournalEntry, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  onSaveVoiceEntry: (
+    entryData: Omit<JournalEntry, 'id' | 'createdAt' | 'updatedAt'>
+  ) => void;
   initialMood?: Mood;
 }
 
@@ -53,14 +56,18 @@ export const VoiceRecorderModal: React.FC<VoiceRecorderModalProps> = ({
     startTranscribing,
     stopTranscribing,
     setTranscript,
+    resetTranscript,
   } = useSpeechRecognition();
 
   const [title, setTitle] = useState('');
   const [mood, setMood] = useState<Mood | undefined>(initialMood);
   const [tags, setTags] = useState<string[]>(['VoiceJournal']);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
-  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
+  const [playbackCurrentTime, setPlaybackCurrentTime] = useState(0);
+  const [playbackDuration, setPlaybackDuration] = useState(0);
   const [isReflecting, setIsReflecting] = useState(false);
+
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Auto-start recording when modal opens
   useEffect(() => {
@@ -72,7 +79,7 @@ export const VoiceRecorderModal: React.FC<VoiceRecorderModalProps> = ({
     }
   }, [isOpen, recorderState, startRecording, isSpeechSupported, startTranscribing]);
 
-  // Handle stop
+  // Handle finish recording
   const handleFinishRecording = () => {
     stopRecording();
     stopTranscribing();
@@ -82,30 +89,62 @@ export const VoiceRecorderModal: React.FC<VoiceRecorderModalProps> = ({
   useEffect(() => {
     if (audioUrl) {
       const audio = new Audio(audioUrl);
-      audio.onended = () => setIsAudioPlaying(false);
-      setAudioElement(audio);
+      audioRef.current = audio;
+
+      audio.onloadedmetadata = () => {
+        const d = isFinite(audio.duration) && audio.duration > 0
+          ? Math.round(audio.duration)
+          : duration;
+        setPlaybackDuration(d || duration);
+      };
+
+      audio.ontimeupdate = () => {
+        setPlaybackCurrentTime(audio.currentTime);
+      };
+
+      audio.onended = () => {
+        setIsAudioPlaying(false);
+        setPlaybackCurrentTime(0);
+      };
+
       return () => {
         audio.pause();
         audio.src = '';
+        audioRef.current = null;
       };
     }
-  }, [audioUrl]);
+  }, [audioUrl, duration]);
 
   const togglePlayback = () => {
-    if (!audioElement) return;
+    const audio = audioRef.current;
+    if (!audio) return;
+
     if (isAudioPlaying) {
-      audioElement.pause();
+      audio.pause();
       setIsAudioPlaying(false);
     } else {
-      audioElement.play();
-      setIsAudioPlaying(true);
+      audio.play().then(() => {
+        setIsAudioPlaying(true);
+      }).catch((e) => {
+        console.warn('Playback error:', e);
+      });
     }
   };
 
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const targetTime = parseFloat(e.target.value);
+    setPlaybackCurrentTime(targetTime);
+    if (audioRef.current) {
+      audioRef.current.currentTime = targetTime;
+    }
+  };
+
+  const effectiveDuration = playbackDuration > 0 ? playbackDuration : (duration || 1);
+
   const handleSave = async () => {
+    const recordedSecs = duration > 0 ? duration : (playbackDuration || 1);
     const defaultTitle =
-      title.trim() ||
-      `Voice memo (${formatDuration(duration)})`;
+      title.trim() || `Voice memo (${formatDuration(recordedSecs)})`;
 
     let generatedReflection = undefined;
     if (transcript.trim()) {
@@ -124,19 +163,20 @@ export const VoiceRecorderModal: React.FC<VoiceRecorderModalProps> = ({
       }
     }
 
-    const mediaList = audioUrl && audioBlob
-      ? [
-          {
-            id: `media-audio-${Date.now()}`,
-            type: 'audio' as const,
-            url: audioUrl,
-            blob: audioBlob,
-            duration,
-            name: `voice-journal-${Date.now()}.webm`,
-            createdAt: new Date().toISOString(),
-          },
-        ]
-      : [];
+    const mediaList =
+      audioUrl && audioBlob
+        ? [
+            {
+              id: `media-audio-${Date.now()}`,
+              type: 'audio' as const,
+              url: audioUrl,
+              blob: audioBlob,
+              duration: recordedSecs,
+              name: `voice-journal-${Date.now()}.webm`,
+              createdAt: new Date().toISOString(),
+            },
+          ]
+        : [];
 
     onSaveVoiceEntry({
       title: defaultTitle,
@@ -154,7 +194,12 @@ export const VoiceRecorderModal: React.FC<VoiceRecorderModalProps> = ({
   const handleClose = () => {
     cancelRecording();
     stopTranscribing();
-    if (audioElement) audioElement.pause();
+    resetTranscript();
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+    setIsAudioPlaying(false);
+    setPlaybackCurrentTime(0);
     setTitle('');
     onClose();
   };
@@ -168,7 +213,7 @@ export const VoiceRecorderModal: React.FC<VoiceRecorderModalProps> = ({
         onClick={handleClose}
       />
 
-      <div className="relative w-full max-w-xl bg-warm-card border border-warm-border rounded-3xl p-6 sm:p-8 shadow-elevated z-10 animate-slide-up space-y-6">
+      <div className="relative w-full max-w-xl bg-warm-card border border-warm-border rounded-3xl p-6 sm:p-8 shadow-elevated z-10 animate-slide-up space-y-6 max-h-[92vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -179,7 +224,7 @@ export const VoiceRecorderModal: React.FC<VoiceRecorderModalProps> = ({
           </div>
           <button
             onClick={handleClose}
-            className="p-1.5 rounded-full text-warm-muted hover:text-warm-text hover:bg-warm-card-subtle transition-colors"
+            className="p-1.5 rounded-full text-warm-muted hover:text-warm-text hover:bg-warm-card-subtle transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -200,12 +245,14 @@ export const VoiceRecorderModal: React.FC<VoiceRecorderModalProps> = ({
 
         {/* State 1: Active Recording / Paused */}
         {(recorderState === 'recording' || recorderState === 'paused') && (
-          <div className="py-8 text-center space-y-6">
+          <div className="py-6 text-center space-y-6">
             {/* Status indicator */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/40 text-rose-600 dark:text-rose-400 text-xs font-semibold">
               <Mic className="w-3.5 h-3.5 animate-pulse" />
               <span>
-                {recorderState === 'recording' ? 'Recording in progress' : 'Recording paused'}
+                {recorderState === 'recording'
+                  ? 'Recording in progress'
+                  : 'Recording paused'}
               </span>
             </div>
 
@@ -216,8 +263,14 @@ export const VoiceRecorderModal: React.FC<VoiceRecorderModalProps> = ({
 
             {/* Dynamic Waveform Visualizer */}
             <div className="flex items-center justify-center gap-1.5 h-14">
-              {[...Array(18)].map((_, i) => {
-                const heightMult = recorderState === 'recording' ? Math.max(0.2, (audioLevel * 1.5) * Math.sin(i + 1)) : 0.15;
+              {[...Array(20)].map((_, i) => {
+                const heightMult =
+                  recorderState === 'recording'
+                    ? Math.max(
+                        0.2,
+                        audioLevel * 1.5 * Math.abs(Math.sin((i + 1) * 0.4))
+                      )
+                    : 0.15;
                 const barHeight = Math.max(6, Math.min(48, heightMult * 48));
                 return (
                   <span
@@ -230,21 +283,30 @@ export const VoiceRecorderModal: React.FC<VoiceRecorderModalProps> = ({
             </div>
 
             {/* Live Streaming Transcript */}
-            <div className="bg-warm-card-subtle/80 border border-warm-border rounded-2xl p-4 min-h-[72px] text-left max-h-36 overflow-y-auto">
-              <span className="text-[10px] uppercase font-bold tracking-wider text-warm-muted block mb-1">
-                Live Transcript
-              </span>
+            <div className="bg-warm-card-subtle/80 border border-warm-border rounded-2xl p-4 min-h-[80px] text-left max-h-40 overflow-y-auto space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-warm-muted flex items-center gap-1.5">
+                  <FileText className="w-3 h-3 text-rose-500" />
+                  Live Transcript
+                </span>
+                {transcript && (
+                  <span className="text-[10px] text-warm-muted">
+                    {transcript.trim().split(/\s+/).length} words
+                  </span>
+                )}
+              </div>
               {transcript || interimTranscript ? (
                 <p className="text-xs sm:text-sm text-warm-text italic leading-relaxed">
-                  {transcript} <span className="text-warm-faint">{interimTranscript}</span>
+                  {transcript}{' '}
+                  <span className="text-warm-faint">{interimTranscript}</span>
                 </p>
               ) : isSpeechSupported ? (
                 <p className="text-xs text-warm-faint italic">
-                  Speak clearly into your microphone... your words will appear here.
+                  Speak into your microphone... your words will transcribe live.
                 </p>
               ) : (
                 <p className="text-xs text-warm-muted italic">
-                  Speech transcription is not supported by your current browser, but your audio will be safely recorded.
+                  Speech transcription is not supported by your current browser, but your audio is recording clearly.
                 </p>
               )}
             </div>
@@ -287,7 +349,7 @@ export const VoiceRecorderModal: React.FC<VoiceRecorderModalProps> = ({
                 onClick={handleFinishRecording}
                 leftIcon={<Square className="w-4 h-4 fill-white" />}
               >
-                Finish
+                Finish Recording
               </Button>
             </div>
           </div>
@@ -296,32 +358,54 @@ export const VoiceRecorderModal: React.FC<VoiceRecorderModalProps> = ({
         {/* State 2: Stopped / Review & Save Screen */}
         {recorderState === 'stopped' && (
           <div className="space-y-5 animate-slide-up">
-            {/* Audio Playback Card */}
-            <div className="bg-warm-card-subtle border border-warm-border rounded-2xl p-4 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={togglePlayback}
-                  className="w-12 h-12 rounded-full bg-rose-500 text-white flex items-center justify-center shadow-subtle hover:bg-rose-600 transition-colors"
-                >
-                  {isAudioPlaying ? (
-                    <Pause className="w-5 h-5" />
-                  ) : (
-                    <Play className="w-5 h-5 ml-0.5" />
+            {/* Audio Playback Card with Interactive Scrubber */}
+            <div className="bg-warm-card-subtle border border-warm-border rounded-2xl p-4 sm:p-5 space-y-3">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3.5">
+                  <button
+                    type="button"
+                    onClick={togglePlayback}
+                    className="w-12 h-12 rounded-full bg-rose-500 text-white flex items-center justify-center shadow-subtle hover:bg-rose-600 active:scale-95 transition-all cursor-pointer"
+                  >
+                    {isAudioPlaying ? (
+                      <Pause className="w-5 h-5" />
+                    ) : (
+                      <Play className="w-5 h-5 ml-0.5" />
+                    )}
+                  </button>
+                  <div>
+                    <h4 className="text-sm font-semibold text-warm-text">
+                      Voice Recording Ready
+                    </h4>
+                    <p className="text-xs text-warm-muted font-mono mt-0.5">
+                      {formatDuration(playbackCurrentTime)} / {formatDuration(effectiveDuration)}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 text-rose-500">
+                  <Volume2 className="w-5 h-5" />
+                  {isAudioPlaying && (
+                    <div className="flex items-center gap-0.5">
+                      <span className="w-1 h-3 bg-rose-500 rounded-full animate-pulse" />
+                      <span className="w-1 h-5 bg-rose-500 rounded-full animate-pulse delay-75" />
+                      <span className="w-1 h-2 bg-rose-500 rounded-full animate-pulse delay-150" />
+                    </div>
                   )}
-                </button>
-                <div>
-                  <h4 className="text-sm font-semibold text-warm-text">
-                    Recorded Audio
-                  </h4>
-                  <p className="text-xs text-warm-muted">
-                    Duration: {formatDuration(duration)}
-                  </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 text-rose-500">
-                <Volume2 className="w-5 h-5" />
+              {/* Progress Scrubber Slider */}
+              <div className="pt-1">
+                <input
+                  type="range"
+                  min={0}
+                  max={effectiveDuration}
+                  step={0.1}
+                  value={playbackCurrentTime}
+                  onChange={handleSeek}
+                  className="w-full accent-rose-500 h-1.5 bg-warm-border rounded-lg cursor-pointer appearance-none"
+                />
               </div>
             </div>
 
@@ -334,8 +418,8 @@ export const VoiceRecorderModal: React.FC<VoiceRecorderModalProps> = ({
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Name this voice moment..."
-                className="w-full font-serif text-xl bg-warm-card border border-warm-border rounded-2xl px-4 py-2.5 text-warm-text placeholder:text-warm-faint outline-none focus:border-warm-accent"
+                placeholder="Give this voice memory a title..."
+                className="w-full font-serif text-lg bg-warm-card border border-warm-border rounded-2xl px-4 py-2.5 text-warm-text placeholder:text-warm-faint outline-none focus:border-warm-accent transition-colors"
               />
             </div>
 
@@ -353,14 +437,21 @@ export const VoiceRecorderModal: React.FC<VoiceRecorderModalProps> = ({
 
             {/* Transcript Preview / Editor */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-warm-muted block">
-                Transcript {isSpeechSupported ? '(Editable)' : ''}
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold uppercase tracking-wider text-warm-muted block">
+                  Transcript {isSpeechSupported ? '(Editable)' : ''}
+                </label>
+                {transcript && (
+                  <span className="text-[11px] text-warm-muted">
+                    {transcript.trim().split(/\s+/).length} words
+                  </span>
+                )}
+              </div>
               <textarea
                 value={transcript}
                 onChange={(e) => setTranscript(e.target.value)}
-                placeholder="No transcript captured. You may type any notes here..."
-                className="w-full bg-warm-card border border-warm-border rounded-2xl p-4 text-xs sm:text-sm text-warm-text placeholder:text-warm-faint outline-none focus:border-warm-accent leading-relaxed resize-none"
+                placeholder="No speech transcribed. You may write or edit your spoken thoughts here..."
+                className="w-full bg-warm-card border border-warm-border rounded-2xl p-4 text-xs sm:text-sm text-warm-text placeholder:text-warm-faint outline-none focus:border-warm-accent leading-relaxed resize-none transition-colors"
                 rows={4}
               />
             </div>
@@ -387,7 +478,7 @@ export const VoiceRecorderModal: React.FC<VoiceRecorderModalProps> = ({
                       setTags([...tags, tag.trim().replace(/^#/, '')]);
                     }
                   }}
-                  className="text-xs text-warm-muted hover:text-warm-text px-2 py-0.5 rounded-full border border-dashed border-warm-border"
+                  className="text-xs text-warm-muted hover:text-warm-text px-2.5 py-0.5 rounded-full border border-dashed border-warm-border cursor-pointer hover:bg-warm-card-subtle"
                 >
                   + Tag
                 </button>

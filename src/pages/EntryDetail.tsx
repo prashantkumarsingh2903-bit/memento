@@ -12,9 +12,6 @@ import {
   Layers,
   PenLine,
   Camera,
-  Play,
-  Pause,
-  Volume2,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import type { JournalEntry } from '../types';
@@ -23,7 +20,7 @@ import { Badge } from '../components/common/Badge';
 import { Button } from '../components/common/Button';
 import { Modal } from '../components/common/Modal';
 import { aiService } from '../services/ai/aiService';
-import { formatDuration } from '../services/media/mediaUtils';
+import { AudioPlayerCard } from '../components/journal/AudioPlayerCard';
 
 interface EntryDetailProps {
   entry: JournalEntry;
@@ -44,7 +41,6 @@ export const EntryDetail: React.FC<EntryDetailProps> = ({
 }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isReflecting, setIsReflecting] = useState(false);
-  const [isPlayingAudio, setIsPlayingAudio] = useState<string | null>(null);
 
   const moodInfo = getMoodDetails(entry.mood);
   const formattedDate = format(new Date(entry.createdAt), 'EEEE, MMMM d, yyyy');
@@ -221,50 +217,12 @@ export const EntryDetail: React.FC<EntryDetailProps> = ({
 
         {/* Attached Audio Memo */}
         {entry.media && entry.media.filter((m) => m.type === 'audio').length > 0 && (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {entry.media
               .filter((m) => m.type === 'audio')
-              .map((audio) => {
-                const isPlaying = isPlayingAudio === audio.id;
-                return (
-                  <div
-                    key={audio.id}
-                    className="bg-warm-card border border-warm-border rounded-2xl p-4 flex items-center justify-between gap-4 shadow-subtle"
-                  >
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={() =>
-                          setIsPlayingAudio(isPlaying ? null : audio.id)
-                        }
-                        className="w-10 h-10 rounded-full bg-rose-500 text-white flex items-center justify-center shadow-subtle hover:bg-rose-600 transition-colors"
-                      >
-                        {isPlaying ? (
-                          <Pause className="w-4 h-4" />
-                        ) : (
-                          <Play className="w-4 h-4 ml-0.5" />
-                        )}
-                      </button>
-                      <div>
-                        <p className="text-xs font-semibold text-warm-text">
-                          {audio.name || 'Voice Recording'}
-                        </p>
-                        <p className="text-[11px] text-warm-muted">
-                          {audio.duration ? formatDuration(audio.duration) : 'Audio Note'}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-1.5 text-rose-500/80">
-                      <Volume2 className="w-4 h-4" />
-                      <div className="flex items-center gap-0.5">
-                        <span className="w-1 h-3 bg-rose-400 rounded-full animate-pulse" />
-                        <span className="w-1 h-5 bg-rose-500 rounded-full animate-pulse" />
-                        <span className="w-1 h-2 bg-rose-400 rounded-full animate-pulse" />
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+              .map((audio) => (
+                <AudioPlayerCard key={audio.id} media={audio} />
+              ))}
           </div>
         )}
 

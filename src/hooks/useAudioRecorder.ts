@@ -15,6 +15,9 @@ export function useAudioRecorder() {
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<number | null>(null);
+  const startTimeRef = useRef<number>(0);
+  const accumulatedTimeRef = useRef<number>(0);
+
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animFrameRef = useRef<number | null>(null);
@@ -30,7 +33,10 @@ export function useAudioRecorder() {
 
   const startVisualizer = (stream: MediaStream) => {
     try {
-      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const AudioCtx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext })
+          .webkitAudioContext;
       const ctx = new AudioCtx();
       const analyser = ctx.createAnalyser();
       analyser.fftSize = 64;
@@ -67,6 +73,7 @@ export function useAudioRecorder() {
       setAudioUrl(null);
     }
     setDuration(0);
+    accumulatedTimeRef.current = 0;
     chunksRef.current = [];
 
     try {
@@ -80,7 +87,10 @@ export function useAudioRecorder() {
       streamRef.current = stream;
 
       const mimeType = getSupportedAudioMimeType();
-      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      const recorder = new MediaRecorder(
+        stream,
+        mimeType ? { mimeType } : undefined
+      );
 
       recorder.ondataavailable = (e) => {
         if (e.data && e.data.size > 0) {
@@ -102,14 +112,18 @@ export function useAudioRecorder() {
       recorder.start(500); // 500ms chunks
       mediaRecorderRef.current = recorder;
       setRecorderState('recording');
+      startTimeRef.current = Date.now();
 
       // Visualizer
       startVisualizer(stream);
 
-      // Start timer
+      // High-accuracy timer
+      if (timerRef.current) clearInterval(timerRef.current);
       timerRef.current = window.setInterval(() => {
-        setDuration((prev) => prev + 1);
-      }, 1000);
+        const elapsed =
+          accumulatedTimeRef.current + (Date.now() - startTimeRef.current);
+        setDuration(Math.max(0, Math.floor(elapsed / 1000)));
+      }, 250);
     } catch (err: unknown) {
       console.warn('Microphone permission denied / error:', err);
       const errorMsg =
@@ -126,6 +140,8 @@ export function useAudioRecorder() {
       mediaRecorderRef.current.pause();
       setRecorderState('paused');
       if (timerRef.current) clearInterval(timerRef.current);
+      accumulatedTimeRef.current += Date.now() - startTimeRef.current;
+      setDuration(Math.max(0, Math.floor(accumulatedTimeRef.current / 1000)));
     }
   }, [recorderState]);
 
@@ -133,15 +149,26 @@ export function useAudioRecorder() {
     if (mediaRecorderRef.current && recorderState === 'paused') {
       mediaRecorderRef.current.resume();
       setRecorderState('recording');
+      startTimeRef.current = Date.now();
       timerRef.current = window.setInterval(() => {
-        setDuration((prev) => prev + 1);
-      }, 1000);
+        const elapsed =
+          accumulatedTimeRef.current + (Date.now() - startTimeRef.current);
+        setDuration(Math.max(0, Math.floor(elapsed / 1000)));
+      }, 250);
     }
   }, [recorderState]);
 
   const stopRecording = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
-    if (mediaRecorderRef.current && (recorderState === 'recording' || recorderState === 'paused')) {
+    if (
+      mediaRecorderRef.current &&
+      (recorderState === 'recording' || recorderState === 'paused')
+    ) {
+      if (recorderState === 'recording') {
+        accumulatedTimeRef.current += Date.now() - startTimeRef.current;
+      }
+      const finalSecs = Math.max(1, Math.round(accumulatedTimeRef.current / 1000));
+      setDuration(finalSecs);
       mediaRecorderRef.current.stop();
     }
     if (streamRef.current) {
@@ -164,6 +191,7 @@ export function useAudioRecorder() {
     setAudioBlob(null);
     setAudioUrl(null);
     setDuration(0);
+    accumulatedTimeRef.current = 0;
     setRecorderState('idle');
     chunksRef.current = [];
   }, [audioUrl, recorderState]);

@@ -19,6 +19,8 @@ export function useVideoRecorder() {
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<number | null>(null);
+  const startTimeRef = useRef<number>(0);
+  const accumulatedTimeRef = useRef<number>(0);
 
   const startPreview = useCallback(async () => {
     setPermissionError(null);
@@ -56,6 +58,7 @@ export function useVideoRecorder() {
     if (!streamRef.current) return;
     chunksRef.current = [];
     setDuration(0);
+    accumulatedTimeRef.current = 0;
 
     const mimeType = getSupportedVideoMimeType();
     const recorder = new MediaRecorder(
@@ -93,10 +96,14 @@ export function useVideoRecorder() {
     recorder.start(1000);
     mediaRecorderRef.current = recorder;
     setRecorderState('recording');
+    startTimeRef.current = Date.now();
 
+    if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = window.setInterval(() => {
-      setDuration((prev) => prev + 1);
-    }, 1000);
+      const elapsed =
+        accumulatedTimeRef.current + (Date.now() - startTimeRef.current);
+      setDuration(Math.max(0, Math.floor(elapsed / 1000)));
+    }, 250);
   }, []);
 
   const pauseRecording = useCallback(() => {
@@ -104,6 +111,8 @@ export function useVideoRecorder() {
       mediaRecorderRef.current.pause();
       setRecorderState('paused');
       if (timerRef.current) clearInterval(timerRef.current);
+      accumulatedTimeRef.current += Date.now() - startTimeRef.current;
+      setDuration(Math.max(0, Math.floor(accumulatedTimeRef.current / 1000)));
     }
   }, [recorderState]);
 
@@ -111,9 +120,12 @@ export function useVideoRecorder() {
     if (mediaRecorderRef.current && recorderState === 'paused') {
       mediaRecorderRef.current.resume();
       setRecorderState('recording');
+      startTimeRef.current = Date.now();
       timerRef.current = window.setInterval(() => {
-        setDuration((prev) => prev + 1);
-      }, 1000);
+        const elapsed =
+          accumulatedTimeRef.current + (Date.now() - startTimeRef.current);
+        setDuration(Math.max(0, Math.floor(elapsed / 1000)));
+      }, 250);
     }
   }, [recorderState]);
 
@@ -123,6 +135,11 @@ export function useVideoRecorder() {
       mediaRecorderRef.current &&
       (recorderState === 'recording' || recorderState === 'paused')
     ) {
+      if (recorderState === 'recording') {
+        accumulatedTimeRef.current += Date.now() - startTimeRef.current;
+      }
+      const finalSecs = Math.max(1, Math.round(accumulatedTimeRef.current / 1000));
+      setDuration(finalSecs);
       mediaRecorderRef.current.stop();
     }
   }, [recorderState]);
@@ -141,6 +158,7 @@ export function useVideoRecorder() {
     setVideoUrl(null);
     setThumbnailUrl('');
     setDuration(0);
+    accumulatedTimeRef.current = 0;
     setRecorderState('idle');
     chunksRef.current = [];
   }, [videoUrl, recorderState]);

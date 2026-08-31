@@ -16,8 +16,9 @@ import {
   Sparkles,
   Image as ImageIcon,
   X,
+  Save,
 } from 'lucide-react';
-import type { UserProfile, EntryType } from '../types';
+import type { UserProfile, EntryType, Mood } from '../types';
 import { storageService } from '../services/storage/storageService';
 import { Button } from '../components/common/Button';
 import { MoodSelector } from '../components/common/MoodSelector';
@@ -66,6 +67,7 @@ export const Settings: React.FC<SettingsPageProps> = ({
 }) => {
   const [profile, setProfile] = useState<UserProfile>(currentProfile);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [micStatus, setMicStatus] = useState<'checking' | 'granted' | 'denied' | 'prompt'>('checking');
   const [camStatus, setCamStatus] = useState<'checking' | 'granted' | 'denied' | 'prompt'>('checking');
   const [clearConfirmOpen, setClearConfirmOpen] = useState(false);
@@ -109,18 +111,35 @@ export const Settings: React.FC<SettingsPageProps> = ({
     }
   };
 
-  const handleProfileChange = (updates: Partial<UserProfile>) => {
-    const updated = storageService.updateProfile(updates);
-    setProfile(updated);
-    onUpdateProfile(updated);
+  const handleFieldChange = (updates: Partial<UserProfile>) => {
+    setProfile((prev) => ({ ...prev, ...updates }));
+    setHasUnsavedChanges(true);
 
-    // Apply dark mode if theme changes
+    // If theme changed directly, apply it immediately for visual preview
     if (updates.theme) {
       applyTheme(updates.theme);
+      // Auto save theme selection
+      const updated = storageService.updateProfile({ theme: updates.theme });
+      onUpdateProfile(updated);
     }
+  };
 
+  const handleSaveProfile = () => {
+    const updated = storageService.updateProfile(profile);
+    setProfile(updated);
+    onUpdateProfile(updated);
+    setHasUnsavedChanges(false);
     setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 2000);
+    setTimeout(() => setSavedSuccess(false), 3000);
+  };
+
+  const handleAvatarSelect = (url: string) => {
+    const updated = storageService.updateProfile({ avatarUrl: url });
+    setProfile(updated);
+    onUpdateProfile(updated);
+    setIsAvatarModalOpen(false);
+    setSavedSuccess(true);
+    setTimeout(() => setSavedSuccess(false), 2500);
   };
 
   const handleAvatarFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -135,8 +154,7 @@ export const Settings: React.FC<SettingsPageProps> = ({
     const reader = new FileReader();
     reader.onload = (ev) => {
       const dataUrl = ev.target?.result as string;
-      handleProfileChange({ avatarUrl: dataUrl });
-      setIsAvatarModalOpen(false);
+      handleAvatarSelect(dataUrl);
     };
     reader.readAsDataURL(file);
   };
@@ -246,7 +264,6 @@ export const Settings: React.FC<SettingsPageProps> = ({
   };
 
   const entriesCount = storageService.getEntries().length;
-
   const initials = profile.name
     ? profile.name
         .split(' ')
@@ -259,41 +276,63 @@ export const Settings: React.FC<SettingsPageProps> = ({
   return (
     <div className="space-y-10 max-w-4xl mx-auto animate-fade-in pb-12">
       {/* Header */}
-      <section className="space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-warm-card border border-warm-border text-warm-muted text-xs font-semibold">
-          <Sliders className="w-3.5 h-3.5 text-warm-accent" />
-          <span>Preferences & Data</span>
+      <section className="space-y-3">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-warm-card border border-warm-border text-warm-muted text-xs font-semibold">
+            <Sliders className="w-3.5 h-3.5 text-warm-accent" />
+            <span>Preferences & Data</span>
+          </div>
+
+          {/* Action Header Button */}
+          <div className="flex items-center gap-2.5">
+            {savedSuccess && (
+              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 text-xs font-medium border border-emerald-200 dark:border-emerald-800/40 animate-fade-in">
+                <Check className="w-3.5 h-3.5" />
+                <span>Profile Saved Successfully</span>
+              </div>
+            )}
+            <Button
+              onClick={handleSaveProfile}
+              className="py-2 px-4 shadow-subtle hover:shadow-soft font-medium text-xs sm:text-sm"
+              leftIcon={<Save className="w-4 h-4" />}
+            >
+              Save Profile Changes
+            </Button>
+          </div>
         </div>
-        <div className="flex items-center justify-between">
+
+        <div>
           <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-warm-text">
             Settings
           </h1>
-          {savedSuccess && (
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 text-xs font-medium border border-emerald-200 dark:border-emerald-800/40 animate-fade-in">
-              <Check className="w-3.5 h-3.5" />
-              <span>Saved</span>
-            </div>
-          )}
+          <p className="text-sm sm:text-base text-warm-muted max-w-xl leading-relaxed mt-1">
+            Manage your personal profile, photo, mindful reflection preferences, appearance, and local-first data.
+          </p>
         </div>
-        <p className="text-sm sm:text-base text-warm-muted max-w-xl leading-relaxed">
-          Manage your personal profile, photo, mindful reflection preferences, appearance, and local-first data.
-        </p>
       </section>
 
       {/* 1. Profile & Avatar Section */}
       <section className="bg-warm-card border border-warm-border rounded-3xl p-6 sm:p-8 shadow-subtle space-y-6">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-2xl bg-warm-accent-light text-warm-accent">
-            <User className="w-5 h-5" />
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-2xl bg-warm-accent-light text-warm-accent">
+              <User className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="font-serif text-xl font-medium text-warm-text">
+                Personal Profile
+              </h2>
+              <p className="text-xs text-warm-muted">
+                Personalize your name, reflective greeting, and profile picture
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="font-serif text-xl font-medium text-warm-text">
-              Personal Profile
-            </h2>
-            <p className="text-xs text-warm-muted">
-              Personalize your name, reflective greeting, and profile picture
-            </p>
-          </div>
+
+          {hasUnsavedChanges && (
+            <span className="text-xs font-medium text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1 rounded-full border border-amber-200 dark:border-amber-800/40">
+              Unsaved changes
+            </span>
+          )}
         </div>
 
         {/* Profile Picture & Name Row */}
@@ -341,8 +380,8 @@ export const Settings: React.FC<SettingsPageProps> = ({
               {profile.avatarUrl && (
                 <button
                   type="button"
-                  onClick={() => handleProfileChange({ avatarUrl: '' })}
-                  className="text-xs text-rose-500 hover:text-rose-600 px-2.5 py-1.5 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                  onClick={() => handleAvatarSelect('')}
+                  className="text-xs text-rose-500 hover:text-rose-600 px-2.5 py-1.5 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
                 >
                   Remove Photo
                 </button>
@@ -369,7 +408,7 @@ export const Settings: React.FC<SettingsPageProps> = ({
             <input
               type="text"
               value={profile.name}
-              onChange={(e) => handleProfileChange({ name: e.target.value })}
+              onChange={(e) => handleFieldChange({ name: e.target.value })}
               placeholder="Enter your name..."
               className="w-full bg-warm-card-subtle border border-warm-border rounded-2xl px-4 py-2.5 text-sm text-warm-text outline-none focus:border-warm-accent transition-colors font-medium"
             />
@@ -382,7 +421,7 @@ export const Settings: React.FC<SettingsPageProps> = ({
             <select
               value={profile.defaultEntryType}
               onChange={(e) =>
-                handleProfileChange({ defaultEntryType: e.target.value as EntryType })
+                handleFieldChange({ defaultEntryType: e.target.value as EntryType })
               }
               className="w-full bg-warm-card-subtle border border-warm-border rounded-2xl px-4 py-2.5 text-sm text-warm-text outline-none focus:border-warm-accent transition-colors capitalize"
             >
@@ -400,11 +439,26 @@ export const Settings: React.FC<SettingsPageProps> = ({
             <input
               type="text"
               value={profile.bio || ''}
-              onChange={(e) => handleProfileChange({ bio: e.target.value })}
+              onChange={(e) => handleFieldChange({ bio: e.target.value })}
               placeholder="e.g. Exploring slow technology, writing, and mindful living..."
               className="w-full bg-warm-card-subtle border border-warm-border rounded-2xl px-4 py-2.5 text-sm text-warm-text outline-none focus:border-warm-accent transition-colors"
             />
           </div>
+        </div>
+
+        {/* Save Profile Button */}
+        <div className="pt-3 border-t border-warm-border flex items-center justify-between flex-wrap gap-3">
+          <p className="text-xs text-warm-muted">
+            All profile information is stored privately in your browser storage.
+          </p>
+          <Button
+            onClick={handleSaveProfile}
+            size="md"
+            className="shadow-subtle hover:shadow-soft"
+            leftIcon={<Save className="w-4 h-4" />}
+          >
+            Save Profile Changes
+          </Button>
         </div>
       </section>
 
@@ -431,7 +485,7 @@ export const Settings: React.FC<SettingsPageProps> = ({
             </label>
             <MoodSelector
               value={profile.defaultMood}
-              onChange={(m) => handleProfileChange({ defaultMood: m })}
+              onChange={(m: Mood) => handleFieldChange({ defaultMood: m })}
               size="sm"
             />
           </div>
@@ -449,7 +503,7 @@ export const Settings: React.FC<SettingsPageProps> = ({
               <input
                 type="checkbox"
                 checked={profile.autoTranscribe}
-                onChange={(e) => handleProfileChange({ autoTranscribe: e.target.checked })}
+                onChange={(e) => handleFieldChange({ autoTranscribe: e.target.checked })}
                 className="w-5 h-5 accent-warm-accent rounded cursor-pointer"
               />
             </label>
@@ -467,12 +521,23 @@ export const Settings: React.FC<SettingsPageProps> = ({
                 type="checkbox"
                 checked={profile.aiReflectionEnabled}
                 onChange={(e) =>
-                  handleProfileChange({ aiReflectionEnabled: e.target.checked })
+                  handleFieldChange({ aiReflectionEnabled: e.target.checked })
                 }
                 className="w-5 h-5 accent-warm-accent rounded cursor-pointer"
               />
             </label>
           </div>
+        </div>
+
+        <div className="pt-3 border-t border-warm-border flex justify-end">
+          <Button
+            onClick={handleSaveProfile}
+            size="sm"
+            variant="secondary"
+            leftIcon={<Save className="w-3.5 h-3.5" />}
+          >
+            Save Preferences
+          </Button>
         </div>
       </section>
 
@@ -496,7 +561,7 @@ export const Settings: React.FC<SettingsPageProps> = ({
           {(['light', 'dark', 'system'] as const).map((t) => (
             <button
               key={t}
-              onClick={() => handleProfileChange({ theme: t })}
+              onClick={() => handleFieldChange({ theme: t })}
               className={`p-4 rounded-2xl border text-center capitalize transition-all cursor-pointer ${
                 profile.theme === t
                   ? 'border-warm-accent bg-warm-accent-light/60 font-semibold text-warm-accent shadow-subtle'
@@ -512,7 +577,7 @@ export const Settings: React.FC<SettingsPageProps> = ({
         </div>
       </section>
 
-      {/* 4. Privacy & Permissions */}
+      {/* 4. Hardware Permissions */}
       <section className="bg-warm-card border border-warm-border rounded-3xl p-6 sm:p-8 shadow-subtle space-y-6">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400">
@@ -520,28 +585,32 @@ export const Settings: React.FC<SettingsPageProps> = ({
           </div>
           <div>
             <h2 className="font-serif text-xl font-medium text-warm-text">
-              Privacy & Hardware Status
+              Hardware Permissions
             </h2>
             <p className="text-xs text-warm-muted">
-              All journal entries, media, and profile info remain 100% on your local device
+              Status of browser microphone and camera access
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="p-4 rounded-2xl bg-warm-card-subtle border border-warm-border flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <Mic className="w-4 h-4 text-warm-muted" />
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-500">
+                <Mic className="w-4 h-4" />
+              </div>
               <div>
-                <span className="text-xs font-medium text-warm-text block">Microphone</span>
-                <span className="text-[11px] text-warm-faint">For voice journaling</span>
+                <p className="text-sm font-medium text-warm-text">Microphone</p>
+                <p className="text-xs text-warm-muted">Voice Journaling</p>
               </div>
             </div>
             <span
-              className={`text-xs px-2.5 py-0.5 rounded-full font-medium capitalize ${
+              className={`text-xs px-2.5 py-1 rounded-full font-medium capitalize ${
                 micStatus === 'granted'
-                  ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400'
-                  : 'bg-stone-100 text-stone-600 dark:bg-stone-800 dark:text-stone-400'
+                  ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/40'
+                  : micStatus === 'denied'
+                  ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400 border border-rose-200 dark:border-rose-800/40'
+                  : 'bg-warm-card text-warm-muted border border-warm-border'
               }`}
             >
               {micStatus}
@@ -549,18 +618,22 @@ export const Settings: React.FC<SettingsPageProps> = ({
           </div>
 
           <div className="p-4 rounded-2xl bg-warm-card-subtle border border-warm-border flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <Camera className="w-4 h-4 text-warm-muted" />
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-500">
+                <Camera className="w-4 h-4" />
+              </div>
               <div>
-                <span className="text-xs font-medium text-warm-text block">Camera</span>
-                <span className="text-[11px] text-warm-faint">For video journaling</span>
+                <p className="text-sm font-medium text-warm-text">Camera</p>
+                <p className="text-xs text-warm-muted">Video Journaling</p>
               </div>
             </div>
             <span
-              className={`text-xs px-2.5 py-0.5 rounded-full font-medium capitalize ${
+              className={`text-xs px-2.5 py-1 rounded-full font-medium capitalize ${
                 camStatus === 'granted'
-                  ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400'
-                  : 'bg-stone-100 text-stone-600 dark:bg-stone-800 dark:text-stone-400'
+                  ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/40'
+                  : camStatus === 'denied'
+                  ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400 border border-rose-200 dark:border-rose-800/40'
+                  : 'bg-warm-card text-warm-muted border border-warm-border'
               }`}
             >
               {camStatus}
@@ -569,48 +642,63 @@ export const Settings: React.FC<SettingsPageProps> = ({
         </div>
       </section>
 
-      {/* 5. Data Management & Backup */}
+      {/* 5. Data Ownership & Storage */}
       <section className="bg-warm-card border border-warm-border rounded-3xl p-6 sm:p-8 shadow-subtle space-y-6">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-2xl bg-stone-100 dark:bg-stone-800 text-warm-text">
+          <div className="p-2 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400">
             <HardDrive className="w-5 h-5" />
           </div>
           <div>
             <h2 className="font-serif text-xl font-medium text-warm-text">
-              Data, Backup & Export
+              Data Portability & Local Storage
             </h2>
             <p className="text-xs text-warm-muted">
-              {entriesCount} memories saved on this device
+              {entriesCount} memories recorded • Full local data ownership
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <Button
-            variant="outline"
-            size="md"
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <button
             onClick={handleExportJSON}
-            leftIcon={<Download className="w-4 h-4 text-warm-accent" />}
-            className="w-full justify-center"
+            className="p-4 rounded-2xl bg-warm-card-subtle border border-warm-border hover:border-warm-border-strong hover:shadow-subtle transition-all text-left flex items-start gap-3 cursor-pointer group"
           >
-            Export Backup (JSON)
-          </Button>
+            <div className="p-2 rounded-xl bg-warm-card border border-warm-border text-warm-accent group-hover:scale-105 transition-transform">
+              <Download className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-warm-text">Export JSON Backup</p>
+              <p className="text-xs text-warm-muted mt-0.5">
+                Complete journal with metadata & settings
+              </p>
+            </div>
+          </button>
 
-          <Button
-            variant="outline"
-            size="md"
+          <button
             onClick={handleExportMarkdown}
-            leftIcon={<FileText className="w-4 h-4 text-warm-accent" />}
-            className="w-full justify-center"
+            className="p-4 rounded-2xl bg-warm-card-subtle border border-warm-border hover:border-warm-border-strong hover:shadow-subtle transition-all text-left flex items-start gap-3 cursor-pointer group"
           >
-            Export as Markdown (.md)
-          </Button>
-        </div>
+            <div className="p-2 rounded-xl bg-warm-card border border-warm-border text-warm-accent group-hover:scale-105 transition-transform">
+              <FileText className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-warm-text">Export Markdown (.md)</p>
+              <p className="text-xs text-warm-muted mt-0.5">
+                Readable plain text archive for Obsidian/Logseq
+              </p>
+            </div>
+          </button>
 
-        <div className="pt-4 border-t border-warm-border/60 flex items-center justify-between flex-wrap gap-3">
-          <label className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl border border-warm-border bg-warm-card-subtle text-xs font-medium text-warm-text hover:bg-warm-card transition-colors cursor-pointer">
-            <Upload className="w-3.5 h-3.5 text-warm-muted" />
-            <span>Restore from Backup</span>
+          <label className="p-4 rounded-2xl bg-warm-card-subtle border border-warm-border hover:border-warm-border-strong hover:shadow-subtle transition-all text-left flex items-start gap-3 cursor-pointer group">
+            <div className="p-2 rounded-xl bg-warm-card border border-warm-border text-warm-accent group-hover:scale-105 transition-transform">
+              <Upload className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-warm-text">Import Backup</p>
+              <p className="text-xs text-warm-muted mt-0.5">
+                Restore previously exported JSON backup
+              </p>
+            </div>
             <input
               type="file"
               accept=".json"
@@ -619,123 +707,127 @@ export const Settings: React.FC<SettingsPageProps> = ({
             />
           </label>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleResetDemo}
-              className="text-xs text-warm-muted hover:text-warm-text px-3 py-1.5 rounded-xl hover:bg-warm-card-subtle transition-colors flex items-center gap-1.5 cursor-pointer"
-            >
-              <RefreshCw className="w-3 h-3" />
-              <span>Reset to Sample Data</span>
-            </button>
+          <button
+            onClick={handleResetDemo}
+            className="p-4 rounded-2xl bg-warm-card-subtle border border-warm-border hover:border-warm-border-strong hover:shadow-subtle transition-all text-left flex items-start gap-3 cursor-pointer group"
+          >
+            <div className="p-2 rounded-xl bg-warm-card border border-warm-border text-warm-accent group-hover:scale-105 transition-transform">
+              <RefreshCw className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-warm-text">Load Sample Memories</p>
+              <p className="text-xs text-warm-muted mt-0.5">
+                Restore initial demo memories & reflections
+              </p>
+            </div>
+          </button>
+        </div>
 
-            <button
-              onClick={() => setClearConfirmOpen(true)}
-              className="text-xs text-rose-600 hover:text-rose-700 px-3 py-1.5 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors flex items-center gap-1.5 cursor-pointer"
-            >
-              <Trash2 className="w-3 h-3" />
-              <span>Clear All Data</span>
-            </button>
+        {/* Danger zone */}
+        <div className="pt-4 border-t border-rose-200/50 dark:border-rose-900/30 flex items-center justify-between flex-wrap gap-4">
+          <div>
+            <p className="text-xs font-semibold text-rose-600 dark:text-rose-400">
+              Clear All Journal Data
+            </p>
+            <p className="text-xs text-warm-muted">
+              Permanently removes all local entries, voice notes, and media.
+            </p>
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setClearConfirmOpen(true)}
+            className="text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+            leftIcon={<Trash2 className="w-3.5 h-3.5" />}
+          >
+            Clear Data
+          </Button>
         </div>
       </section>
 
-      {/* Profile Photo Selector Modal */}
+      {/* Avatar Picker Modal */}
       {isAvatarModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/70 backdrop-blur-sm animate-fade-in">
-          <div className="bg-warm-card border border-warm-border rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-elevated space-y-5 animate-slide-up">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div
+            className="fixed inset-0 bg-stone-950/70 backdrop-blur-md"
+            onClick={() => setIsAvatarModalOpen(false)}
+          />
+          <div className="relative w-full max-w-lg bg-warm-card border border-warm-border rounded-3xl p-6 sm:p-8 shadow-elevated z-10 animate-slide-up space-y-6">
             <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-serif text-2xl font-medium text-warm-text">
-                  Choose Profile Photo
-                </h3>
-                <p className="text-xs text-warm-muted mt-0.5">
-                  Pick a curated profile or upload your own picture
-                </p>
-              </div>
+              <h3 className="font-serif text-2xl font-medium text-warm-text">
+                Choose Profile Photo
+              </h3>
               <button
                 onClick={() => setIsAvatarModalOpen(false)}
-                className="p-1.5 rounded-full text-warm-muted hover:text-warm-text hover:bg-warm-card-subtle transition-colors"
+                className="p-1.5 rounded-full text-warm-muted hover:text-warm-text hover:bg-warm-card-subtle transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Curated Presets Grid */}
-            <div className="space-y-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-warm-muted block">
+            {/* Curated Aesthetic Avatars */}
+            <div className="space-y-3">
+              <label className="text-xs font-semibold uppercase tracking-wider text-warm-muted block">
                 Curated Portraits
-              </span>
-              <div className="grid grid-cols-4 sm:grid-cols-4 gap-3">
-                {PRESET_AVATARS.map((avatar) => (
+              </label>
+              <div className="grid grid-cols-4 gap-3 sm:gap-4">
+                {PRESET_AVATARS.map((av) => (
                   <button
-                    key={avatar.name}
+                    key={av.name}
                     type="button"
-                    onClick={() => {
-                      handleProfileChange({ avatarUrl: avatar.url });
-                      setIsAvatarModalOpen(false);
-                    }}
-                    className={`p-1 rounded-2xl border transition-all hover:scale-105 flex flex-col items-center gap-1.5 ${
-                      profile.avatarUrl === avatar.url
-                        ? 'border-warm-accent ring-2 ring-warm-accent/30 shadow-subtle'
-                        : 'border-warm-border hover:border-warm-border-strong'
-                    }`}
+                    onClick={() => handleAvatarSelect(av.url)}
+                    className="flex flex-col items-center gap-1.5 group cursor-pointer"
                   >
                     <img
-                      src={avatar.url}
-                      alt={avatar.name}
-                      className="w-14 h-14 rounded-xl object-cover"
+                      src={av.url}
+                      alt={av.name}
+                      className="w-14 h-14 rounded-full object-cover border-2 border-warm-border group-hover:border-warm-accent group-hover:scale-105 transition-all shadow-subtle"
                     />
-                    <span className="text-[11px] font-medium text-warm-text truncate">
-                      {avatar.name}
+                    <span className="text-[11px] text-warm-muted group-hover:text-warm-text font-medium truncate max-w-full">
+                      {av.name}
                     </span>
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Custom Upload or Reset */}
-            <div className="pt-3 border-t border-warm-border space-y-3">
+            {/* Upload Custom */}
+            <div className="pt-4 border-t border-warm-border flex items-center justify-between gap-3">
               <Button
-                variant="primary"
-                size="md"
-                onClick={() => {
-                  fileInputRef.current?.click();
-                }}
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
                 leftIcon={<Upload className="w-4 h-4" />}
-                className="w-full justify-center"
               >
-                Upload Photo from Device
+                Upload from Files / Camera
               </Button>
-
-              {profile.avatarUrl && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    handleProfileChange({ avatarUrl: '' });
-                    setIsAvatarModalOpen(false);
-                  }}
-                  className="w-full justify-center text-warm-muted"
-                >
-                  Use Default Initials ({initials})
-                </Button>
-              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsAvatarModalOpen(false)}
+              >
+                Close
+              </Button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Confirmation Modal for Clearing Data */}
+      {/* Clear Confirmation Modal */}
       {clearConfirmOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/70 backdrop-blur-sm animate-fade-in">
-          <div className="bg-warm-card border border-warm-border rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-elevated space-y-4">
-            <h3 className="font-serif text-xl font-medium text-warm-text">
-              Clear All Local Memories?
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div
+            className="fixed inset-0 bg-stone-950/70 backdrop-blur-md"
+            onClick={() => setClearConfirmOpen(false)}
+          />
+          <div className="relative w-full max-w-md bg-warm-card border border-rose-200 dark:border-rose-900 rounded-3xl p-6 shadow-elevated z-10 animate-slide-up space-y-4">
+            <h3 className="font-serif text-xl font-medium text-rose-600 dark:text-rose-400">
+              Clear all journal data?
             </h3>
             <p className="text-xs sm:text-sm text-warm-muted leading-relaxed">
-              This will permanently remove all your journal entries, audio recordings, video clips, and AI reflections from this browser. This action cannot be undone.
+              This will permanently delete all your memories, recorded voice memos, videos, photos, and reset settings on this browser. This cannot be undone.
             </p>
-            <div className="flex items-center justify-end gap-3 pt-2">
+            <div className="flex items-center justify-end gap-2 pt-2">
               <Button
                 variant="outline"
                 size="sm"
@@ -744,12 +836,11 @@ export const Settings: React.FC<SettingsPageProps> = ({
                 Cancel
               </Button>
               <Button
-                variant="primary"
                 size="sm"
-                className="bg-rose-600 hover:bg-rose-700 text-white"
                 onClick={handleClearAll}
+                className="bg-rose-600 hover:bg-rose-700 text-white"
               >
-                Yes, Clear Everything
+                Yes, Delete Everything
               </Button>
             </div>
           </div>

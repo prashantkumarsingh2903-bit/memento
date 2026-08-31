@@ -9,10 +9,10 @@ import {
   Plus,
 } from 'lucide-react';
 import type { EntryType, JournalEntry, Mood, UserProfile } from '../types';
-import { MoodSelector } from '../components/common/MoodSelector';
 import { ReflectionPromptCard } from '../components/journal/ReflectionPromptCard';
 import { JournalCard } from '../components/journal/JournalCard';
 import { Button } from '../components/common/Button';
+import { QuoteOfTheDay, type MindfulQuote } from '../components/home/QuoteOfTheDay';
 
 interface HomePageProps {
   entries: JournalEntry[];
@@ -35,8 +35,6 @@ export const Home: React.FC<HomePageProps> = ({
   onToggleFavorite,
   onNavigateToJournal,
 }) => {
-  const [selectedMood, setSelectedMood] = React.useState<Mood | undefined>();
-
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good morning';
@@ -44,10 +42,9 @@ export const Home: React.FC<HomePageProps> = ({
     return 'Good evening';
   };
 
-  const handleMoodSelect = (mood: Mood) => {
-    setSelectedMood(mood);
-    // Suggest quick capture with chosen mood
-    onStartCapture('text', undefined, mood);
+  const handleReflectOnQuote = (quote: MindfulQuote) => {
+    const promptText = `"${quote.text}" — ${quote.author}\n\nWhat feelings or thoughts does this quote stir in you today?`;
+    onStartCapture('text', promptText);
   };
 
   const recentEntries = entries.slice(0, 4);
@@ -62,7 +59,7 @@ export const Home: React.FC<HomePageProps> = ({
     : 'ME';
 
   return (
-    <div className="space-y-10 max-w-4xl mx-auto">
+    <div className="space-y-10 max-w-4xl mx-auto animate-fade-in">
       {/* 1. Welcoming Hero */}
       <section className="space-y-6">
         <div className="flex items-center justify-between gap-4">
@@ -72,7 +69,7 @@ export const Home: React.FC<HomePageProps> = ({
               <span className="italic font-normal">{displayName}</span>.
             </h1>
             <p className="text-sm sm:text-base text-warm-muted mt-2">
-              {profile.bio || 'How are you feeling right now?'}
+              {profile.bio || 'Take a breath and welcome this moment.'}
             </p>
           </div>
 
@@ -92,14 +89,8 @@ export const Home: React.FC<HomePageProps> = ({
           </div>
         </div>
 
-        {/* Mood Selector */}
-        <div className="pt-1">
-          <MoodSelector
-            value={selectedMood}
-            onChange={handleMoodSelect}
-            size="md"
-          />
-        </div>
+        {/* Quote of the Day (Replaces Mood Assessment space) */}
+        <QuoteOfTheDay onReflect={handleReflectOnQuote} />
       </section>
 
       {/* 2. Primary CTA: Capture a moment */}
@@ -114,7 +105,7 @@ export const Home: React.FC<HomePageProps> = ({
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           {/* Speak */}
           <button
-            onClick={() => onStartCapture('voice', undefined, selectedMood)}
+            onClick={() => onStartCapture('voice')}
             className="p-4 sm:p-5 rounded-3xl bg-warm-card border border-warm-border hover:border-warm-border-strong hover:shadow-soft hover:-translate-y-0.5 transition-all text-left flex flex-col justify-between group cursor-pointer"
           >
             <div className="p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200/50 dark:border-rose-800/40 w-fit mb-4 group-hover:scale-105 transition-transform">
@@ -130,7 +121,7 @@ export const Home: React.FC<HomePageProps> = ({
 
           {/* Write */}
           <button
-            onClick={() => onStartCapture('text', undefined, selectedMood)}
+            onClick={() => onStartCapture('text')}
             className="p-4 sm:p-5 rounded-3xl bg-warm-card border border-warm-border hover:border-warm-border-strong hover:shadow-soft hover:-translate-y-0.5 transition-all text-left flex flex-col justify-between group cursor-pointer"
           >
             <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200/50 dark:border-amber-800/40 w-fit mb-4 group-hover:scale-105 transition-transform">
@@ -146,7 +137,7 @@ export const Home: React.FC<HomePageProps> = ({
 
           {/* Record */}
           <button
-            onClick={() => onStartCapture('video', undefined, selectedMood)}
+            onClick={() => onStartCapture('video')}
             className="p-4 sm:p-5 rounded-3xl bg-warm-card border border-warm-border hover:border-warm-border-strong hover:shadow-soft hover:-translate-y-0.5 transition-all text-left flex flex-col justify-between group cursor-pointer"
           >
             <div className="p-3 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 border border-indigo-200/50 dark:border-indigo-800/40 w-fit mb-4 group-hover:scale-105 transition-transform">
@@ -162,7 +153,7 @@ export const Home: React.FC<HomePageProps> = ({
 
           {/* Photo */}
           <button
-            onClick={() => onStartCapture('photo', undefined, selectedMood)}
+            onClick={() => onStartCapture('photo')}
             className="p-4 sm:p-5 rounded-3xl bg-warm-card border border-warm-border hover:border-warm-border-strong hover:shadow-soft hover:-translate-y-0.5 transition-all text-left flex flex-col justify-between group cursor-pointer"
           >
             <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/40 w-fit mb-4 group-hover:scale-105 transition-transform">
@@ -182,7 +173,7 @@ export const Home: React.FC<HomePageProps> = ({
       <section>
         <ReflectionPromptCard
           onStartWritingWithPrompt={(promptText) =>
-            onStartCapture('text', promptText, selectedMood)
+            onStartCapture('text', promptText)
           }
         />
       </section>
@@ -200,7 +191,7 @@ export const Home: React.FC<HomePageProps> = ({
           {entries.length > 4 && (
             <button
               onClick={onNavigateToJournal}
-              className="flex items-center gap-1 text-xs font-medium text-warm-accent hover:text-warm-accent-hover transition-colors"
+              className="flex items-center gap-1 text-xs font-medium text-warm-accent hover:text-warm-accent-hover transition-colors cursor-pointer"
             >
               <span>View all ({entries.length})</span>
               <ArrowRight className="w-3.5 h-3.5" />
