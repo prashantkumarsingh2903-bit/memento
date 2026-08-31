@@ -9,12 +9,15 @@ import {
   Layers,
   LayoutGrid,
   Calendar as CalendarIcon,
+  Sparkles,
 } from 'lucide-react';
+import { format } from 'date-fns';
 import type { JournalEntry, Mood, EntryType } from '../types';
 import type { EntryFilters } from '../hooks/useEntries';
 import { JournalCard } from '../components/journal/JournalCard';
 import { DayGroupedEntries } from '../components/journal/DayGroupedEntries';
 import { JournalCalendar } from '../components/journal/JournalCalendar';
+import { JournalCalendarPanel } from '../components/journal/JournalCalendarPanel';
 import { MOOD_OPTIONS } from '../components/common/MoodSelector';
 import { Button } from '../components/common/Button';
 
@@ -42,6 +45,8 @@ export const Journal: React.FC<JournalPageProps> = ({
   onStartCapture,
 }) => {
   const [showFilters, setShowFilters] = useState(false);
+  const [showCalendarPanel, setShowCalendarPanel] = useState(true);
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState<Date | null>(null);
   const [timeRange, setTimeRange] = useState<'all' | 'week' | 'month' | 'year'>('all');
   const [viewMode, setViewMode] = useState<'stacked' | 'calendar' | 'grid'>('stacked');
 
@@ -74,16 +79,26 @@ export const Journal: React.FC<JournalPageProps> = ({
     return true;
   });
 
+  // Further filter by selected calendar date if active
+  const displayedEntries = filteredByTime.filter((entry) => {
+    if (!selectedCalendarDate) return true;
+    const entryDateKey = format(new Date(entry.createdAt), 'yyyy-MM-dd');
+    const selectedDateKey = format(selectedCalendarDate, 'yyyy-MM-dd');
+    return entryDateKey === selectedDateKey;
+  });
+
   const hasActiveFilters =
     filters.searchQuery !== '' ||
     filters.selectedMood !== 'all' ||
     filters.selectedType !== 'all' ||
     filters.selectedTag !== 'all' ||
     filters.favoritesOnly ||
-    timeRange !== 'all';
+    timeRange !== 'all' ||
+    selectedCalendarDate !== null;
 
   const resetFilters = () => {
     setTimeRange('all');
+    setSelectedCalendarDate(null);
     onFilterChange({
       searchQuery: '',
       selectedMood: 'all',
@@ -103,7 +118,10 @@ export const Journal: React.FC<JournalPageProps> = ({
               Journal Timeline
             </h1>
             <p className="text-xs sm:text-sm text-app-text-secondary mt-1">
-              {filteredByTime.length} {filteredByTime.length === 1 ? 'entry' : 'entries'} captured
+              {displayedEntries.length} {displayedEntries.length === 1 ? 'entry' : 'entries'}{' '}
+              {selectedCalendarDate
+                ? `on ${format(selectedCalendarDate, 'MMMM d, yyyy')}`
+                : 'captured'}
             </p>
           </div>
 
@@ -169,7 +187,7 @@ export const Journal: React.FC<JournalPageProps> = ({
                 title="Interactive calendar matrix with date-by-date navigation"
               >
                 <CalendarIcon className="w-3.5 h-3.5" />
-                <span>Calendar</span>
+                <span>Full Calendar</span>
               </button>
               <button
                 onClick={() => setViewMode('grid')}
@@ -186,21 +204,43 @@ export const Journal: React.FC<JournalPageProps> = ({
             </div>
           </div>
 
-          {/* Quick Filter toggle */}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`px-3 py-1.5 rounded-xl border transition-all flex items-center gap-1.5 text-xs font-semibold cursor-pointer ${
-              showFilters || hasActiveFilters
-                ? 'bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 text-[#6C4FF6] dark:text-[#856DF8] border-[#6C4FF6]/30'
-                : 'bg-white dark:bg-[#201F28] border-app-border text-app-text-secondary hover:text-app-text'
-            }`}
-          >
-            <SlidersHorizontal className="w-3.5 h-3.5" />
-            <span>Filters</span>
-            {hasActiveFilters && (
-              <span className="w-2 h-2 rounded-full bg-[#6C4FF6]" />
+          {/* Action Buttons: Calendar Panel & Filters */}
+          <div className="flex items-center gap-2">
+            {/* Calendar Panel Toggle */}
+            {viewMode !== 'calendar' && (
+              <button
+                onClick={() => setShowCalendarPanel(!showCalendarPanel)}
+                className={`px-3 py-1.5 rounded-xl border transition-all flex items-center gap-1.5 text-xs font-semibold cursor-pointer ${
+                  showCalendarPanel || selectedCalendarDate
+                    ? 'bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 text-[#6C4FF6] dark:text-[#856DF8] border-[#6C4FF6]/30'
+                    : 'bg-white dark:bg-[#201F28] border-app-border text-app-text-secondary hover:text-app-text'
+                }`}
+                title="Toggle calendar sidebar panel"
+              >
+                <CalendarIcon className="w-3.5 h-3.5" />
+                <span>Calendar Panel</span>
+                {selectedCalendarDate && (
+                  <span className="w-2 h-2 rounded-full bg-[#6C4FF6]" />
+                )}
+              </button>
             )}
-          </button>
+
+            {/* Quick Filter toggle */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`px-3 py-1.5 rounded-xl border transition-all flex items-center gap-1.5 text-xs font-semibold cursor-pointer ${
+                showFilters || hasActiveFilters
+                  ? 'bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 text-[#6C4FF6] dark:text-[#856DF8] border-[#6C4FF6]/30'
+                  : 'bg-white dark:bg-[#201F28] border-app-border text-app-text-secondary hover:text-app-text'
+              }`}
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5" />
+              <span>Filters</span>
+              {hasActiveFilters && (
+                <span className="w-2 h-2 rounded-full bg-[#6C4FF6]" />
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Search Input Bar */}
@@ -226,6 +266,29 @@ export const Journal: React.FC<JournalPageProps> = ({
             )}
           </div>
         </div>
+
+        {/* Active Selected Date Filter Banner */}
+        {selectedCalendarDate && (
+          <div className="flex items-center justify-between p-3 rounded-xl bg-[#F1EEFF] dark:bg-[#6C4FF6]/15 border border-[#6C4FF6]/30 text-xs animate-fade-in">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-[#6C4FF6] shrink-0" />
+              <span className="font-semibold text-app-text">
+                Showing memories from{' '}
+                <span className="text-[#6C4FF6] dark:text-[#856DF8] font-bold">
+                  {format(selectedCalendarDate, 'EEEE, MMMM d, yyyy')}
+                </span>{' '}
+                ({displayedEntries.length}{' '}
+                {displayedEntries.length === 1 ? 'record' : 'records'})
+              </span>
+            </div>
+            <button
+              onClick={() => setSelectedCalendarDate(null)}
+              className="text-xs font-bold text-[#6C4FF6] dark:text-[#856DF8] hover:underline cursor-pointer ml-2"
+            >
+              Show all dates
+            </button>
+          </div>
+        )}
 
         {/* Filter Drawer / Panel */}
         {showFilters && (
@@ -366,70 +429,106 @@ export const Journal: React.FC<JournalPageProps> = ({
         )}
       </div>
 
-      {/* Timeline Entries List */}
-      <div className="space-y-4">
-        {filteredByTime.length === 0 ? (
-          <div className="bg-white dark:bg-[#201F28] border border-app-border rounded-card p-12 text-center space-y-4 shadow-subtle">
-            <div className="w-12 h-12 rounded-2xl bg-app-surface-secondary dark:bg-[#26252F] text-app-text-muted flex items-center justify-center mx-auto">
-              <BookOpen className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="font-sans text-lg font-bold text-app-text">
-                {hasActiveFilters ? 'No matching memories found' : 'No journal entries yet'}
-              </h3>
-              <p className="text-xs sm:text-sm text-app-text-secondary max-w-sm mx-auto mt-1">
-                {hasActiveFilters
-                  ? 'Try adjusting your search query or relaxing your filter conditions.'
-                  : 'Begin by recording what is currently on your mind.'}
-              </p>
-            </div>
-            {hasActiveFilters ? (
-              <Button size="sm" variant="secondary" onClick={resetFilters}>
-                Clear filters
-              </Button>
+      {/* Main Journal Content Area */}
+      {viewMode === 'calendar' ? (
+        <JournalCalendar
+          entries={filteredByTime}
+          onOpenEntry={onOpenEntry}
+          onEditEntry={onEditEntry}
+          onDeleteEntry={onDeleteEntry}
+          onToggleFavorite={onToggleFavorite}
+          onStartCapture={onStartCapture}
+        />
+      ) : (
+        <div
+          className={`grid grid-cols-1 ${
+            showCalendarPanel ? 'lg:grid-cols-12 gap-6 items-start' : ''
+          }`}
+        >
+          {/* Main Timeline Column */}
+          <div className={showCalendarPanel ? 'lg:col-span-8 space-y-4' : 'space-y-4'}>
+            {displayedEntries.length === 0 ? (
+              <div className="bg-white dark:bg-[#201F28] border border-app-border rounded-card p-12 text-center space-y-4 shadow-subtle">
+                <div className="w-12 h-12 rounded-2xl bg-app-surface-secondary dark:bg-[#26252F] text-app-text-muted flex items-center justify-center mx-auto">
+                  <BookOpen className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-sans text-lg font-bold text-app-text">
+                    {hasActiveFilters
+                      ? selectedCalendarDate
+                        ? `No entries on ${format(selectedCalendarDate, 'MMMM d, yyyy')}`
+                        : 'No matching memories found'
+                      : 'No journal entries yet'}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-app-text-secondary max-w-sm mx-auto mt-1">
+                    {hasActiveFilters
+                      ? selectedCalendarDate
+                        ? 'Would you like to record a memory, voice note, or photo for this day?'
+                        : 'Try adjusting your search query or relaxing your filter conditions.'
+                      : 'Begin by recording what is currently on your mind.'}
+                  </p>
+                </div>
+                {hasActiveFilters ? (
+                  <div className="flex items-center justify-center gap-2 pt-2">
+                    <Button size="sm" variant="secondary" onClick={resetFilters}>
+                      Clear filters
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => onStartCapture('text')}
+                      leftIcon={<Plus className="w-4 h-4" />}
+                    >
+                      Add entry
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    size="sm"
+                    onClick={() => onStartCapture('text')}
+                    leftIcon={<Plus className="w-4 h-4" />}
+                  >
+                    Write your first entry
+                  </Button>
+                )}
+              </div>
+            ) : viewMode === 'stacked' ? (
+              <DayGroupedEntries
+                entries={displayedEntries}
+                onOpenEntry={onOpenEntry}
+                onEditEntry={onEditEntry}
+                onDeleteEntry={onDeleteEntry}
+                onToggleFavorite={onToggleFavorite}
+                onStartCapture={onStartCapture}
+              />
             ) : (
-              <Button
-                size="sm"
-                onClick={() => onStartCapture('text')}
-                leftIcon={<Plus className="w-4 h-4" />}
-              >
-                Write your first entry
-              </Button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {displayedEntries.map((entry) => (
+                  <JournalCard
+                    key={entry.id}
+                    entry={entry}
+                    onOpen={onOpenEntry}
+                    onEdit={onEditEntry}
+                    onDelete={onDeleteEntry}
+                    onToggleFavorite={onToggleFavorite}
+                  />
+                ))}
+              </div>
             )}
           </div>
-        ) : viewMode === 'calendar' ? (
-          <JournalCalendar
-            entries={filteredByTime}
-            onOpenEntry={onOpenEntry}
-            onEditEntry={onEditEntry}
-            onDeleteEntry={onDeleteEntry}
-            onToggleFavorite={onToggleFavorite}
-            onStartCapture={onStartCapture}
-          />
-        ) : viewMode === 'stacked' ? (
-          <DayGroupedEntries
-            entries={filteredByTime}
-            onOpenEntry={onOpenEntry}
-            onEditEntry={onEditEntry}
-            onDeleteEntry={onDeleteEntry}
-            onToggleFavorite={onToggleFavorite}
-            onStartCapture={onStartCapture}
-          />
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filteredByTime.map((entry) => (
-              <JournalCard
-                key={entry.id}
-                entry={entry}
-                onOpen={onOpenEntry}
-                onEdit={onEditEntry}
-                onDelete={onDeleteEntry}
-                onToggleFavorite={onToggleFavorite}
+
+          {/* Calendar Sidebar Panel Column */}
+          {showCalendarPanel && (
+            <div className="lg:col-span-4 sticky top-24 space-y-4">
+              <JournalCalendarPanel
+                entries={filteredByTime}
+                selectedDate={selectedCalendarDate}
+                onSelectDate={(d) => setSelectedCalendarDate(d)}
+                onClose={() => setShowCalendarPanel(false)}
               />
-            ))}
-          </div>
-        )}
-      </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
