@@ -16,6 +16,7 @@ import {
   Camera,
 } from 'lucide-react';
 import type { ActiveView, EntryType, UserProfile } from '../../types';
+import { InstallAppPrompt } from '../common/InstallAppPrompt';
 
 interface SidebarProps {
   activeView: ActiveView;
@@ -243,6 +244,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Bottom Section: Preferences & Profile */}
       <div className="space-y-3 pt-4 border-t border-app-border/70">
+        {/* Install Mobile App Trigger */}
+        <div>
+          <InstallAppPrompt />
+        </div>
+
         {/* Settings & Help */}
         <div className="space-y-0.5">
           <button

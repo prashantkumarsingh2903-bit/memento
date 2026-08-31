@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#856DF8"/>
+      <stop offset="50%" stop-color="#6C4FF6"/>
+      <stop offset="100%" stop-color="#4F35C8"/>
+    </linearGradient>
+    <linearGradient id="sparkle-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF7EE2"/>
+      <stop offset="100%" stop-color="#D95CFF"/>
+    </linearGradient>
+    <filter id="shadow" x="60" y="60" width="392" height="412" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- App Background -->
+  <rect width="512" height="512" rx="120" fill="url(#bg-grad)"/>
+
+  <!-- Subtle Inner Glow Border -->
+  <rect x="4" y="4" width="504" height="504" rx="116" stroke="#FFFFFF" stroke-opacity="0.2" stroke-width="4"/>
+
+  <!-- Journal Card Body -->
+  <g filter="url(#shadow)">
+    <rect x="110" y="96" width="292" height="320" rx="36" fill="#FFFFFF"/>
+  </g>
+
+  <!-- Journal Header Accent Bar -->
+  <rect x="150" y="146" width="120" height="24" rx="12" fill="#6C4FF6"/>
+
+  <!-- Journal Lines -->
+  <rect x="150" y="196" width="212" height="16" rx="8" fill="#E4DEFD"/>
+  <rect x="150" y="232" width="180" height="16" rx="8" fill="#E4DEFD"/>
+  <rect x="150" y="268" width="200" height="16" rx="8" fill="#E4DEFD"/>
+  <rect x="150" y="304" width="140" height="16" rx="8" fill="#E4DEFD"/>
+
+  <!-- Multimodal Floating Badges -->
+  <!-- Microphone badge -->
+  <circle cx="160" cy="360" r="16" fill="#6C4FF6"/>
+  <path d="M160 352C157.8 352 156 353.8 156 356V360C156 362.2 157.8 364 160 364C162.2 364 164 362.2 164 360V356C164 353.8 162.2 352 160 352Z" fill="#FFFFFF"/>
+  <path d="M153 359C153 362.9 156.1 366 160 366C163.9 366 167 362.9 167 359" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+  <path d="M160 366V369" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Camera badge -->
+  <circle cx="204" cy="360" r="16" fill="#D95CFF"/>
+  <path d="M198 355H200L201.5 353H206.5L208 355H210C211.1 355 212 355.9 212 357V365C212 366.1 211.1 367 210 367H198C196.9 367 196 366.1 196 365V357C196 355.9 196.9 355 198 355Z" fill="#FFFFFF"/>
+  <circle cx="204" cy="361" r="3" fill="#D95CFF"/>
+
+  <!-- AI Sparkle Badge -->
+  <circle cx="360" cy="360" r="48" fill="url(#sparkle-grad)"/>
+  <path d="M360 328L367 351L390 358L367 365L360 388L353 365L330 358L353 351L360 328Z" fill="#FFFFFF"/>
+</svg>

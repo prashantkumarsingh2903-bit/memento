@@ -17,11 +17,13 @@ import {
   Image as ImageIcon,
   X,
   Save,
+  Smartphone,
 } from 'lucide-react';
 import type { UserProfile, EntryType, Mood } from '../types';
 import { storageService } from '../services/storage/storageService';
 import { Button } from '../components/common/Button';
 import { MoodSelector } from '../components/common/MoodSelector';
+import { InstallAppPrompt } from '../components/common/InstallAppPrompt';
 
 const PRESET_AVATARS = [
   {
@@ -641,7 +643,43 @@ export const Settings: React.FC<SettingsPageProps> = ({
         </div>
       </section>
 
-      {/* 5. Data Ownership & Storage */}
+      {/* 5. Mobile App Download & PWA */}
+      <section className="bg-white dark:bg-[#201F28] border border-app-border rounded-card p-6 sm:p-8 shadow-subtle space-y-6">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-xl bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 text-[#6C4FF6] dark:text-[#856DF8]">
+            <Smartphone className="w-5 h-5" />
+          </div>
+          <div>
+            <h2 className="font-sans text-base sm:text-lg font-bold text-app-text">
+              Mobile App & Offline Access
+            </h2>
+            <p className="text-xs text-app-text-secondary">
+              Install Memento directly to your iPhone or Android home screen for zero-latency standalone access
+            </p>
+          </div>
+        </div>
+
+        <div className="p-5 rounded-2xl bg-app-surface-secondary dark:bg-[#26252F] border border-app-border space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <h4 className="font-sans text-sm font-bold text-app-text flex items-center gap-2">
+                <span>Progressive Web App (PWA)</span>
+                <span className="text-[10px] uppercase font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800/40">
+                  Offline Ready
+                </span>
+              </h4>
+              <p className="text-xs text-app-text-secondary max-w-lg">
+                Launches full-screen without browser bars, saves all voice and video notes locally to IndexedDB, and works completely offline.
+              </p>
+            </div>
+            <div className="shrink-0 w-full sm:w-60">
+              <InstallAppPrompt />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. Data Ownership & Storage */}
       <section className="bg-white dark:bg-[#201F28] border border-app-border rounded-card p-6 sm:p-8 shadow-subtle space-y-6">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400">
