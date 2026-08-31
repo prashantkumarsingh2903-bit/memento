@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" fill="none">
+  <defs>
+    <linearGradient id="pwa192-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#856DF8"/>
+      <stop offset="50%" stop-color="#6C4FF6"/>
+      <stop offset="100%" stop-color="#4F35C8"/>
+    </linearGradient>
+    <linearGradient id="pwa192-sparkle" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF7EE2"/>
+      <stop offset="100%" stop-color="#D95CFF"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="192" height="192" rx="44" fill="url(#pwa192-bg)"/>
+  <rect x="2" y="2" width="188" height="188" rx="42" stroke="#FFFFFF" stroke-opacity="0.25" stroke-width="2"/>
+
+  <!-- Journal Card -->
+  <rect x="42" y="36" width="108" height="120" rx="14" fill="#FFFFFF"/>
+
+  <!-- Accent Header -->
+  <rect x="56" y="52" width="46" height="9" rx="4.5" fill="#6C4FF6"/>
+
+  <!-- Lines -->
+  <rect x="56" y="70" width="80" height="6" rx="3" fill="#E4DEFD"/>
+  <rect x="56" y="84" width="68" height="6" rx="3" fill="#E4DEFD"/>
+  <rect x="56" y="98" width="76" height="6" rx="3" fill="#E4DEFD"/>
+
+  <!-- Sparkle Accent -->
+  <circle cx="134" cy="134" r="18" fill="url(#pwa192-sparkle)"/>
+  <path d="M134 122L136.6 130.6L145.2 133.2L136.6 135.8L134 144.4L131.4 135.8L122.8 133.2L131.4 130.6L134 122Z" fill="#FFFFFF"/>
+</svg>
