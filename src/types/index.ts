@@ -19,6 +19,9 @@ export interface MediaItem {
   size?: number;
   duration?: number; // In seconds
   thumbnailUrl?: string;
+  resolution?: string; // e.g. "1080p", "720p"
+  frameRate?: number; // e.g. 60, 30, 24
+  qualityPreset?: string; // e.g. "high", "standard"
   createdAt: string;
 }
 

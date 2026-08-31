@@ -1,6 +1,12 @@
-import type { JournalEntry, UserProfile, JournalStats, Mood, EntryType } from '../../types';
+import type { JournalEntry, UserProfile, JournalStats, Mood, EntryType, MediaItem } from '../../types';
 import { DEMO_ENTRIES } from '../../data/demoEntries';
-import { storeMediaBlob, getMediaBlob, deleteMediaBlob, clearAllMediaBlobs } from './indexedDB';
+import {
+  storeMediaBlob,
+  getMediaBlob,
+  getMediaBlobUrl,
+  deleteMediaBlob,
+  clearAllMediaBlobs,
+} from './indexedDB';
 
 const STORAGE_KEYS = {
   ENTRIES: 'memento_journal_entries',
@@ -67,14 +73,70 @@ class StorageService {
     return entries.find((e) => e.id === id);
   }
 
+  /**
+   * Persists entry to localStorage and stores any binary media Blobs into IndexedDB
+   */
+  public async createEntryAsync(
+    entryData: Omit<JournalEntry, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<JournalEntry> {
+    const entries = this.getEntries();
+    const now = new Date().toISOString();
+    const entryId = `entry-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+
+    // 1. Save media blobs into IndexedDB
+    const processedMedia: MediaItem[] = [];
+    if (entryData.media && entryData.media.length > 0) {
+      for (const item of entryData.media) {
+        if (item.blob) {
+          await storeMediaBlob(item.id, item.blob);
+        }
+        // Store metadata without the raw Blob object in localStorage
+        const { blob: _blob, ...cleanMedia } = item;
+        processedMedia.push(cleanMedia);
+      }
+    }
+
+    const newEntry: JournalEntry = {
+      ...entryData,
+      id: entryId,
+      media: processedMedia,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    const updated = [newEntry, ...entries];
+    localStorage.setItem(STORAGE_KEYS.ENTRIES, JSON.stringify(updated));
+    return newEntry;
+  }
+
   public createEntry(
     entryData: Omit<JournalEntry, 'id' | 'createdAt' | 'updatedAt'>
   ): JournalEntry {
     const entries = this.getEntries();
     const now = new Date().toISOString();
+    const entryId = `entry-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+
+    // Background store media blobs to IndexedDB
+    if (entryData.media && entryData.media.length > 0) {
+      entryData.media.forEach((item) => {
+        if (item.blob) {
+          storeMediaBlob(item.id, item.blob).catch((err) =>
+            console.warn('Media blob persist failed:', err)
+          );
+        }
+      });
+    }
+
+    // Clean media items for localStorage JSON serialization
+    const cleanMedia = (entryData.media || []).map((item) => {
+      const { blob: _blob, ...rest } = item;
+      return rest;
+    });
+
     const newEntry: JournalEntry = {
       ...entryData,
-      id: `entry-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      id: entryId,
+      media: cleanMedia,
       createdAt: now,
       updatedAt: now,
     };
@@ -89,9 +151,30 @@ class StorageService {
     const index = entries.findIndex((e) => e.id === id);
     if (index === -1) return null;
 
+    // Background store any new media blobs
+    if (updates.media && updates.media.length > 0) {
+      updates.media.forEach((item) => {
+        if (item.blob) {
+          storeMediaBlob(item.id, item.blob).catch((err) =>
+            console.warn('Media blob persist failed:', err)
+          );
+        }
+      });
+    }
+
+    // Clean media items for JSON serialization
+    let cleanMedia = updates.media;
+    if (cleanMedia) {
+      cleanMedia = cleanMedia.map((item) => {
+        const { blob: _blob, ...rest } = item;
+        return rest;
+      });
+    }
+
     const updatedEntry: JournalEntry = {
       ...entries[index],
       ...updates,
+      ...(cleanMedia ? { media: cleanMedia } : {}),
       updatedAt: new Date().toISOString(),
     };
 
@@ -123,7 +206,7 @@ class StorageService {
     return this.updateEntry(id, { isFavorite: !entry.isFavorite });
   }
 
-  // ── MEDIA BLOB HELPERS ──
+  // ── MEDIA BLOB & HYDRATION HELPERS ──
 
   public async saveMedia(id: string, blob: Blob): Promise<string> {
     return storeMediaBlob(id, blob);
@@ -133,8 +216,36 @@ class StorageService {
     return getMediaBlob(id);
   }
 
+  public async getMediaUrl(id: string): Promise<string | null> {
+    return getMediaBlobUrl(id);
+  }
+
   public async deleteMedia(id: string): Promise<void> {
     return deleteMediaBlob(id);
+  }
+
+  /**
+   * Restores active object URLs for any stored IndexedDB media blobs
+   */
+  public async hydrateEntryMedia(entry: JournalEntry): Promise<JournalEntry> {
+    if (!entry.media || entry.media.length === 0) return entry;
+
+    const hydratedMedia: MediaItem[] = await Promise.all(
+      entry.media.map(async (item) => {
+        // If it already has a working URL (like remote demo image or current session blob), check if IndexedDB has a newer blob
+        const storedUrl = await getMediaBlobUrl(item.id);
+        if (storedUrl) {
+          return { ...item, url: storedUrl };
+        }
+        return item;
+      })
+    );
+
+    return { ...entry, media: hydratedMedia };
+  }
+
+  public async hydrateAllEntriesMedia(entries: JournalEntry[]): Promise<JournalEntry[]> {
+    return Promise.all(entries.map((e) => this.hydrateEntryMedia(e)));
   }
 
   // ── PROFILE ──

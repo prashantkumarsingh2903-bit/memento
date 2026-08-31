@@ -6,10 +6,13 @@ import {
   Plus,
   BookOpen,
   Heart,
+  Layers,
+  LayoutGrid,
 } from 'lucide-react';
 import type { JournalEntry, Mood, EntryType } from '../types';
 import type { EntryFilters } from '../hooks/useEntries';
 import { JournalCard } from '../components/journal/JournalCard';
+import { DayGroupedEntries } from '../components/journal/DayGroupedEntries';
 import { MOOD_OPTIONS } from '../components/common/MoodSelector';
 import { Button } from '../components/common/Button';
 
@@ -38,6 +41,7 @@ export const Journal: React.FC<JournalPageProps> = ({
 }) => {
   const [showFilters, setShowFilters] = useState(false);
   const [timeRange, setTimeRange] = useState<'all' | 'week' | 'month' | 'year'>('all');
+  const [viewMode, setViewMode] = useState<'stacked' | 'grid'>('stacked');
 
   const entryTypeOptions: { value: EntryType | 'all'; label: string }[] = [
     { value: 'all', label: 'All types' },
@@ -110,31 +114,61 @@ export const Journal: React.FC<JournalPageProps> = ({
           </Button>
         </div>
 
-        {/* Time Segmented Control Tabs */}
+        {/* Time Segmented Control Tabs & View Switcher */}
         <div className="flex items-center justify-between gap-3 flex-wrap">
-          <div className="inline-flex p-1 rounded-xl bg-app-surface-secondary dark:bg-[#26252F] border border-app-border">
-            {(['all', 'week', 'month', 'year'] as const).map((range) => {
-              const labels = {
-                all: 'All Time',
-                week: 'This Week',
-                month: 'This Month',
-                year: 'This Year',
-              };
-              const isActive = timeRange === range;
-              return (
-                <button
-                  key={range}
-                  onClick={() => setTimeRange(range)}
-                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                    isActive
-                      ? 'bg-white dark:bg-[#201F28] text-[#6C4FF6] dark:text-[#856DF8] shadow-subtle'
-                      : 'text-app-text-secondary hover:text-app-text'
-                  }`}
-                >
-                  {labels[range]}
-                </button>
-              );
-            })}
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="inline-flex p-1 rounded-xl bg-app-surface-secondary dark:bg-[#26252F] border border-app-border">
+              {(['all', 'week', 'month', 'year'] as const).map((range) => {
+                const labels = {
+                  all: 'All Time',
+                  week: 'This Week',
+                  month: 'This Month',
+                  year: 'This Year',
+                };
+                const isActive = timeRange === range;
+                return (
+                  <button
+                    key={range}
+                    onClick={() => setTimeRange(range)}
+                    className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                      isActive
+                        ? 'bg-white dark:bg-[#201F28] text-[#6C4FF6] dark:text-[#856DF8] shadow-subtle'
+                        : 'text-app-text-secondary hover:text-app-text'
+                    }`}
+                  >
+                    {labels[range]}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* View Mode Toggle: Stacked by Day vs Grid */}
+            <div className="inline-flex p-1 rounded-xl bg-app-surface-secondary dark:bg-[#26252F] border border-app-border">
+              <button
+                onClick={() => setViewMode('stacked')}
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  viewMode === 'stacked'
+                    ? 'bg-white dark:bg-[#201F28] text-[#6C4FF6] dark:text-[#856DF8] shadow-subtle'
+                    : 'text-app-text-secondary hover:text-app-text'
+                }`}
+                title="Stack entries of each day together in unified day tabs"
+              >
+                <Layers className="w-3.5 h-3.5" />
+                <span>Stacked by Day</span>
+              </button>
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  viewMode === 'grid'
+                    ? 'bg-white dark:bg-[#201F28] text-[#6C4FF6] dark:text-[#856DF8] shadow-subtle'
+                    : 'text-app-text-secondary hover:text-app-text'
+                }`}
+                title="View entries in a 2-column card grid"
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+                <span>Grid</span>
+              </button>
+            </div>
           </div>
 
           {/* Quick Filter toggle */}
@@ -348,6 +382,14 @@ export const Journal: React.FC<JournalPageProps> = ({
               </Button>
             )}
           </div>
+        ) : viewMode === 'stacked' ? (
+          <DayGroupedEntries
+            entries={filteredByTime}
+            onOpenEntry={onOpenEntry}
+            onEditEntry={onEditEntry}
+            onDeleteEntry={onDeleteEntry}
+            onToggleFavorite={onToggleFavorite}
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredByTime.map((entry) => (

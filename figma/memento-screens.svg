@@ -1,0 +1,272 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2800 1600" width="2800" height="1600" style="background:#0E0D13; font-family:'Plus Jakarta Sans', Inter, -apple-system, sans-serif;">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6C4FF6" />
+      <stop offset="100%" stop-color="#5B3FD4" />
+    </linearGradient>
+    <linearGradient id="bannerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F1EEFF" />
+      <stop offset="60%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#FFFFFF" />
+    </linearGradient>
+    <filter id="cardShadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#282350" flood-opacity="0.06" />
+    </filter>
+    <filter id="artboardShadow" x="-2%" y="-2%" width="104%" height="104%">
+      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#000000" flood-opacity="0.5" />
+    </filter>
+  </defs>
+
+  <!-- ========================================================================= -->
+  <!-- CANVAS HEADER                                                             -->
+  <!-- ========================================================================= -->
+  <g transform="translate(80, 60)">
+    <rect width="40" height="40" rx="10" fill="#6C4FF6" />
+    <text x="20" y="27" fill="#FFFFFF" font-size="20" font-weight="800" text-anchor="middle">M</text>
+    <text x="56" y="26" fill="#FFFFFF" font-size="24" font-weight="800" letter-spacing="-0.5">Memento — Figma Vector Artboards &amp; Design System</text>
+    <text x="56" y="46" fill="#A1A0AA" font-size="13" font-weight="500">Master UI Kit • 1080p 60FPS Video Viewfinder • Studio Audio • Mindful Dashboard</text>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- ARTBOARD 1: DESKTOP HOME DASHBOARD (1440 x 960)                          -->
+  <!-- ========================================================================= -->
+  <g transform="translate(80, 160)" filter="url(#artboardShadow)">
+    <!-- Artboard Base Frame -->
+    <rect width="1440" height="960" rx="24" fill="#F5F4FA" stroke="#2B2938" stroke-width="2" />
+
+    <!-- Top Navigation Bar -->
+    <rect x="0" y="0" width="1440" height="72" rx="24" fill="#FFFFFF" />
+    <line x1="0" y1="72" x2="1440" y2="72" stroke="#ECEBF2" stroke-width="1.5" />
+
+    <!-- Logo & Nav links -->
+    <rect x="48" y="16" width="40" height="40" rx="10" fill="#6C4FF6" />
+    <text x="68" y="42" fill="#FFFFFF" font-size="18" font-weight="800" text-anchor="middle">M</text>
+    <text x="100" y="42" fill="#202124" font-size="18" font-weight="800">Memento</text>
+    <rect x="190" y="24" width="42" height="22" rx="11" fill="#F1EEFF" />
+    <text x="211" y="39" fill="#6C4FF6" font-size="11" font-weight="700" text-anchor="middle">v2.0</text>
+
+    <!-- Nav Items -->
+    <text x="540" y="42" fill="#6C4FF6" font-size="14" font-weight="700">Home</text>
+    <text x="620" y="42" fill="#73727D" font-size="14" font-weight="500">Timeline</text>
+    <text x="720" y="42" fill="#73727D" font-size="14" font-weight="500">Reflect</text>
+    <text x="810" y="42" fill="#73727D" font-size="14" font-weight="500">Insights</text>
+    <text x="900" y="42" fill="#73727D" font-size="14" font-weight="500">Settings</text>
+
+    <!-- Header Actions -->
+    <rect x="1272" y="16" width="120" height="40" rx="12" fill="#6C4FF6" />
+    <text x="1332" y="41" fill="#FFFFFF" font-size="13" font-weight="700" text-anchor="middle">+ New Entry</text>
+
+    <!-- Greeting Area -->
+    <g transform="translate(48, 104)">
+      <rect width="170" height="26" rx="13" fill="#F1EEFF" stroke="#6C4FF6" stroke-opacity="0.2" />
+      <text x="85" y="17" fill="#6C4FF6" font-size="11" font-weight="700" text-anchor="middle">✦ AI Multimodal Journal</text>
+
+      <text x="0" y="62" fill="#202124" font-size="32" font-weight="800">Good morning, <tspan fill="#6C4FF6">Prashant</tspan></text>
+      <text x="0" y="86" fill="#73727D" font-size="14" font-weight="500">Your mindful sanctuary for deep thoughts, speech memos, and personal growth.</text>
+
+      <!-- Profile Avatar -->
+      <rect x="1288" y="10" width="56" height="56" rx="18" fill="#F1EEFF" stroke="#6C4FF6" stroke-opacity="0.2" />
+      <text x="1316" y="45" fill="#6C4FF6" font-size="18" font-weight="800" text-anchor="middle">PK</text>
+    </g>
+
+    <!-- Quote of the Day Banner -->
+    <g transform="translate(48, 224)" filter="url(#cardShadow)">
+      <rect width="1344" height="100" rx="20" fill="url(#bannerGrad)" stroke="#6C4FF6" stroke-opacity="0.2" stroke-width="1.5" />
+      <text x="32" y="32" fill="#6C4FF6" font-size="10" font-weight="800" letter-spacing="1">QUOTE OF THE DAY</text>
+      <text x="32" y="58" fill="#202124" font-size="15" font-weight="600" font-style="italic">"Do not dwell in the past, do not dream of the future, concentrate the mind on the present moment."</text>
+      <text x="32" y="80" fill="#73727D" font-size="12" font-weight="500">— Gautama Buddha</text>
+
+      <rect x="1140" y="30" width="172" height="40" rx="12" fill="#6C4FF6" />
+      <text x="1226" y="55" fill="#FFFFFF" font-size="12" font-weight="700" text-anchor="middle">Reflect on this quote →</text>
+    </g>
+
+    <!-- 4 Capture Modality Cards -->
+    <g transform="translate(48, 352)">
+      <!-- Card 1: Speak -->
+      <g transform="translate(0, 0)" filter="url(#cardShadow)">
+        <rect width="318" height="150" rx="18" fill="#FFFFFF" stroke="#ECEBF2" stroke-width="1.5" />
+        <rect x="24" y="24" width="46" height="46" rx="14" fill="#F1EEFF" />
+        <circle cx="47" cy="47" r="10" fill="#6C4FF6" />
+        <text x="24" y="108" fill="#202124" font-size="18" font-weight="700">Speak</text>
+        <text x="24" y="128" fill="#73727D" font-size="12">Studio audio &amp; live transcript</text>
+        <text x="260" y="44" fill="#6C4FF6" font-size="10" font-weight="800">AUDIO</text>
+      </g>
+
+      <!-- Card 2: Write -->
+      <g transform="translate(342, 0)" filter="url(#cardShadow)">
+        <rect width="318" height="150" rx="18" fill="#FFFFFF" stroke="#ECEBF2" stroke-width="1.5" />
+        <rect x="24" y="24" width="46" height="46" rx="14" fill="#E0F7FA" />
+        <circle cx="47" cy="47" r="10" fill="#00ACC1" />
+        <text x="24" y="108" fill="#202124" font-size="18" font-weight="700">Write</text>
+        <text x="24" y="128" fill="#73727D" font-size="12">Markdown editor &amp; AI coach</text>
+        <text x="260" y="44" fill="#00ACC1" font-size="10" font-weight="800">TEXT</text>
+      </g>
+
+      <!-- Card 3: Record -->
+      <g transform="translate(684, 0)" filter="url(#cardShadow)">
+        <rect width="318" height="150" rx="18" fill="#FFFFFF" stroke="#ECEBF2" stroke-width="1.5" />
+        <rect x="24" y="24" width="46" height="46" rx="14" fill="#FCE4EC" />
+        <circle cx="47" cy="47" r="10" fill="#D81B60" />
+        <text x="24" y="108" fill="#202124" font-size="18" font-weight="700">Record</text>
+        <text x="24" y="128" fill="#73727D" font-size="12">1080p 60FPS Webcam</text>
+        <text x="250" y="44" fill="#D81B60" font-size="10" font-weight="800">VIDEO</text>
+      </g>
+
+      <!-- Card 4: Photo -->
+      <g transform="translate(1026, 0)" filter="url(#cardShadow)">
+        <rect width="318" height="150" rx="18" fill="#FFFFFF" stroke="#ECEBF2" stroke-width="1.5" />
+        <rect x="24" y="24" width="46" height="46" rx="14" fill="#E8F5E9" />
+        <circle cx="47" cy="47" r="10" fill="#43A047" />
+        <text x="24" y="108" fill="#202124" font-size="18" font-weight="700">Photo</text>
+        <text x="24" y="128" fill="#73727D" font-size="12">Visual moments &amp; memories</text>
+        <text x="252" y="44" fill="#43A047" font-size="10" font-weight="800">IMAGE</text>
+      </g>
+    </g>
+
+    <!-- Report & Analytics Section -->
+    <g transform="translate(48, 532)">
+      <rect width="1344" height="230" rx="20" fill="#F8F7FC" stroke="#ECEBF2" stroke-width="1.5" />
+      <text x="32" y="42" fill="#202124" font-size="18" font-weight="800">Personal Analytics &amp; Rhythm Report</text>
+      <rect x="370" y="26" width="112" height="22" rx="11" fill="#E8F5E9" />
+      <text x="426" y="41" fill="#2E7D32" font-size="10" font-weight="800" text-anchor="middle">REPORT SYSTEM</text>
+
+      <g transform="translate(32, 68)">
+        <!-- Stat 1 -->
+        <rect x="0" y="0" width="300" height="130" rx="14" fill="#FFFFFF" stroke="#ECEBF2" />
+        <text x="20" y="32" fill="#73727D" font-size="11" font-weight="700">TOTAL MEMORIES</text>
+        <text x="20" y="76" fill="#202124" font-size="32" font-weight="800">12</text>
+        <text x="20" y="104" fill="#A1A0AA" font-size="12">Stored locally in IndexedDB</text>
+
+        <!-- Stat 2 -->
+        <rect x="326" y="0" width="300" height="130" rx="14" fill="#FFFFFF" stroke="#ECEBF2" />
+        <text x="346" y="32" fill="#73727D" font-size="11" font-weight="700">WORDS WRITTEN</text>
+        <text x="346" y="76" fill="#202124" font-size="32" font-weight="800">3,420</text>
+        <text x="346" y="104" fill="#A1A0AA" font-size="12">Deep personal reflections</text>
+
+        <!-- Stat 3 -->
+        <rect x="652" y="0" width="300" height="130" rx="14" fill="#FFFFFF" stroke="#ECEBF2" />
+        <text x="672" y="32" fill="#73727D" font-size="11" font-weight="700">SPOKEN AUDIO</text>
+        <text x="672" y="76" fill="#202124" font-size="32" font-weight="800">18m 45s</text>
+        <text x="672" y="104" fill="#A1A0AA" font-size="12">Voice notes &amp; video logs</text>
+
+        <!-- Stat 4 -->
+        <rect x="978" y="0" width="300" height="130" rx="14" fill="#FFFFFF" stroke="#ECEBF2" />
+        <text x="998" y="32" fill="#73727D" font-size="11" font-weight="700">RHYTHM STREAK</text>
+        <text x="998" y="76" fill="#202124" font-size="32" font-weight="800">5 days 🔥</text>
+        <text x="998" y="104" fill="#A1A0AA" font-size="12">Active journaling habit</text>
+      </g>
+    </g>
+
+    <!-- Recent Journal Entry Card Mock -->
+    <g transform="translate(48, 786)" filter="url(#cardShadow)">
+      <rect width="1344" height="140" rx="18" fill="#FFFFFF" stroke="#ECEBF2" stroke-width="1.5" />
+
+      <!-- Top info -->
+      <rect x="24" y="20" width="70" height="24" rx="12" fill="#F1EEFF" />
+      <text x="59" y="36" fill="#6C4FF6" font-size="11" font-weight="700" text-anchor="middle">📹 Video</text>
+      <text x="110" y="36" fill="#73727D" font-size="12">Aug 31, 2026 • 2 hours ago</text>
+
+      <text x="24" y="72" fill="#202124" font-size="18" font-weight="800">Evening Wind Down &amp; Gratitude Review</text>
+      <text x="24" y="96" fill="#73727D" font-size="13">"Recorded thoughts on the newly launched features. The clarity gained from speaking aloud is immense."</text>
+
+      <rect x="1200" y="24" width="118" height="26" rx="13" fill="#F1EEFF" stroke="#6C4FF6" stroke-opacity="0.3" />
+      <text x="1259" y="41" fill="#6C4FF6" font-size="11" font-weight="700" text-anchor="middle">✨ AI Reflected</text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- ARTBOARD 2: VIDEO RECORDER MODAL WITH 60FPS CONTROLS (640 x 720)          -->
+  <!-- ========================================================================= -->
+  <g transform="translate(1580, 160)" filter="url(#artboardShadow)">
+    <rect width="640" height="720" rx="24" fill="#201F28" stroke="#3E3C4D" stroke-width="2" />
+
+    <!-- Header -->
+    <rect x="28" y="28" width="36" height="36" rx="10" fill="#6C4FF6" fill-opacity="0.2" />
+    <text x="46" y="52" fill="#856DF8" font-size="16" text-anchor="middle">📹</text>
+    <text x="76" y="44" fill="#F5F4FA" font-size="17" font-weight="800">Video Reflection Studio</text>
+    <text x="76" y="62" fill="#A1A0AA" font-size="11">1080p Full HD @ 60 FPS • Real-time STT Subtitles</text>
+
+    <!-- Camera Viewfinder -->
+    <g transform="translate(28, 86)">
+      <rect width="584" height="340" rx="18" fill="#000000" stroke="#3E3C4D" />
+
+      <!-- REC pill -->
+      <rect x="16" y="16" width="100" height="28" rx="14" fill="#181721" fill-opacity="0.8" />
+      <circle cx="30" cy="30" r="4" fill="#E65C6A" />
+      <text x="42" y="34" fill="#FFFFFF" font-size="11" font-weight="800">REC</text>
+      <text x="80" y="34" fill="#FFFFFF" font-size="11" font-family="'JetBrains Mono', monospace" font-weight="700">01:45</text>
+
+      <!-- Frame rate & Quality Pills -->
+      <rect x="428" y="16" width="140" height="28" rx="14" fill="#181721" fill-opacity="0.8" stroke="#FFFFFF" stroke-opacity="0.15" />
+      <text x="498" y="34" fill="#856DF8" font-size="11" font-weight="800" text-anchor="middle">1080p / 60 FPS</text>
+
+      <!-- Live Subtitle Overlay -->
+      <rect x="20" y="270" width="544" height="50" rx="12" fill="#000000" fill-opacity="0.8" stroke="#FFFFFF" stroke-opacity="0.1" />
+      <text x="292" y="294" fill="#FFFFFF" font-size="12" font-style="italic" font-weight="500" text-anchor="middle">"Reflecting on today's breakthrough in spatial audio..."</text>
+      <text x="292" y="310" fill="#856DF8" font-size="11" font-weight="700" text-anchor="middle">and how it transforms focus.</text>
+    </g>
+
+    <!-- Quality Config Strip -->
+    <g transform="translate(28, 442)">
+      <rect width="584" height="120" rx="16" fill="#26252F" stroke="#302F3C" />
+      <text x="20" y="28" fill="#F5F4FA" font-size="12" font-weight="700">Quality &amp; Frame Rate Settings</text>
+
+      <!-- Resolution Options -->
+      <text x="20" y="54" fill="#A1A0AA" font-size="10" font-weight="700">RESOLUTION</text>
+      <rect x="20" y="64" width="60" height="26" rx="8" fill="#6C4FF6" />
+      <text x="50" y="81" fill="#FFFFFF" font-size="10" font-weight="700" text-anchor="middle">1080p</text>
+      <rect x="88" y="64" width="60" height="26" rx="8" fill="#201F28" stroke="#3E3C4D" />
+      <text x="118" y="81" fill="#A1A0AA" font-size="10" font-weight="700" text-anchor="middle">720p</text>
+      <rect x="156" y="64" width="60" height="26" rx="8" fill="#201F28" stroke="#3E3C4D" />
+      <text x="186" y="81" fill="#A1A0AA" font-size="10" font-weight="700" text-anchor="middle">480p</text>
+
+      <!-- FPS Options -->
+      <text x="240" y="54" fill="#A1A0AA" font-size="10" font-weight="700">FRAME RATE</text>
+      <rect x="240" y="64" width="60" height="26" rx="8" fill="#6C4FF6" />
+      <text x="270" y="81" fill="#FFFFFF" font-size="10" font-weight="700" text-anchor="middle">60 fps</text>
+      <rect x="308" y="64" width="60" height="26" rx="8" fill="#201F28" stroke="#3E3C4D" />
+      <text x="338" y="81" fill="#A1A0AA" font-size="10" font-weight="700" text-anchor="middle">30 fps</text>
+      <rect x="376" y="64" width="60" height="26" rx="8" fill="#201F28" stroke="#3E3C4D" />
+      <text x="406" y="81" fill="#A1A0AA" font-size="10" font-weight="700" text-anchor="middle">24 fps</text>
+    </g>
+
+    <!-- Action Buttons -->
+    <g transform="translate(28, 590)">
+      <rect x="0" y="0" width="160" height="48" rx="14" fill="transparent" stroke="#3E3C4D" />
+      <text x="80" y="30" fill="#F5F4FA" font-size="13" font-weight="600" text-anchor="middle">Cancel</text>
+
+      <rect x="180" y="0" width="404" height="48" rx="14" fill="#E65C6A" />
+      <text x="382" y="30" fill="#FFFFFF" font-size="14" font-weight="800" text-anchor="middle">■ Stop Recording &amp; Review</text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- ARTBOARD 3: COLOR PALETTE & DESIGN SYSTEM TOKENS                          -->
+  <!-- ========================================================================= -->
+  <g transform="translate(1580, 920)" filter="url(#artboardShadow)">
+    <rect width="640" height="200" rx="20" fill="#181721" stroke="#2B2938" stroke-width="1.5" />
+    <text x="24" y="36" fill="#FFFFFF" font-size="14" font-weight="800">Memento Design Tokens</text>
+    <text x="24" y="56" fill="#A1A0AA" font-size="11">W3C Compliant JSON Token System</text>
+
+    <g transform="translate(24, 76)">
+      <rect x="0" y="0" width="64" height="64" rx="12" fill="#6C4FF6" />
+      <text x="32" y="80" fill="#A1A0AA" font-size="9" text-anchor="middle">#6C4FF6</text>
+
+      <rect x="76" y="0" width="64" height="64" rx="12" fill="#48D7E8" />
+      <text x="108" y="80" fill="#A1A0AA" font-size="9" text-anchor="middle">#48D7E8</text>
+
+      <rect x="152" y="0" width="64" height="64" rx="12" fill="#D95CFF" />
+      <text x="184" y="80" fill="#A1A0AA" font-size="9" text-anchor="middle">#D95CFF</text>
+
+      <rect x="228" y="0" width="64" height="64" rx="12" fill="#48B884" />
+      <text x="260" y="80" fill="#A1A0AA" font-size="9" text-anchor="middle">#48B884</text>
+
+      <rect x="304" y="0" width="64" height="64" rx="12" fill="#F4B740" />
+      <text x="336" y="80" fill="#A1A0AA" font-size="9" text-anchor="middle">#F4B740</text>
+
+      <rect x="380" y="0" width="64" height="64" rx="12" fill="#E65C6A" />
+      <text x="412" y="80" fill="#A1A0AA" font-size="9" text-anchor="middle">#E65C6A</text>
+    </g>
+  </g>
+</svg>

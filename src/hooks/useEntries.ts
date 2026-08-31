@@ -22,10 +22,14 @@ export function useEntries() {
     favoritesOnly: false,
   });
 
-  const reloadEntries = useCallback(() => {
+  const reloadEntries = useCallback(async () => {
     try {
       const data = storageService.getEntries();
+      // Set unhydrated immediately for fast render
       setEntries(data);
+      // Asynchronously hydrate media object URLs from IndexedDB
+      const hydrated = await storageService.hydrateAllEntriesMedia(data);
+      setEntries(hydrated);
     } catch (e) {
       console.error('Failed to load entries:', e);
     } finally {
@@ -39,9 +43,9 @@ export function useEntries() {
 
   // CRUD
   const createEntry = useCallback(
-    (data: Omit<JournalEntry, 'id' | 'createdAt' | 'updatedAt'>) => {
-      const newEntry = storageService.createEntry(data);
-      reloadEntries();
+    async (data: Omit<JournalEntry, 'id' | 'createdAt' | 'updatedAt'>) => {
+      const newEntry = await storageService.createEntryAsync(data);
+      await reloadEntries();
       return newEntry;
     },
     [reloadEntries]

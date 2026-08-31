@@ -110,10 +110,10 @@ export default function App() {
     }
   };
 
-  const handleSaveNewEntry = (
+  const handleSaveNewEntry = async (
     data: Omit<JournalEntry, 'id' | 'createdAt' | 'updatedAt'>
   ) => {
-    const created = createEntry(data);
+    const created = await createEntry(data);
     addToast({
       type: 'success',
       title: 'Memory saved',

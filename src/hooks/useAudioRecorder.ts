@@ -2,6 +2,13 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { getSupportedAudioMimeType } from '../services/media/mediaUtils';
 
 export type RecorderState = 'idle' | 'recording' | 'paused' | 'stopped';
+export type AudioQualityPreset = 'studio' | 'standard' | 'economy';
+
+const AUDIO_BITRATE_SPECS: Record<AudioQualityPreset, { bitrate: number; label: string; sampleRate: number }> = {
+  studio: { bitrate: 256000, label: 'Studio HD (256 kbps, 48kHz)', sampleRate: 48000 },
+  standard: { bitrate: 128000, label: 'Standard (128 kbps, 44.1kHz)', sampleRate: 44100 },
+  economy: { bitrate: 64000, label: 'Voice Optimized (64 kbps)', sampleRate: 24000 },
+};
 
 export function useAudioRecorder() {
   const [recorderState, setRecorderState] = useState<RecorderState>('idle');
@@ -10,6 +17,7 @@ export function useAudioRecorder() {
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [audioLevel, setAudioLevel] = useState(0);
   const [permissionError, setPermissionError] = useState<string | null>(null);
+  const [qualityPreset, setQualityPreset] = useState<AudioQualityPreset>('studio');
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -39,7 +47,8 @@ export function useAudioRecorder() {
           .webkitAudioContext;
       const ctx = new AudioCtx();
       const analyser = ctx.createAnalyser();
-      analyser.fftSize = 64;
+      analyser.fftSize = 128;
+      analyser.smoothingTimeConstant = 0.8;
       const source = ctx.createMediaStreamSource(stream);
       source.connect(analyser);
 
@@ -55,7 +64,7 @@ export function useAudioRecorder() {
             sum += dataArray[i];
           }
           const avg = sum / dataArray.length;
-          setAudioLevel(avg / 128); // 0.0 to 1.0
+          setAudioLevel(Math.min(1, avg / 100)); // Normalized 0.0 to 1.0
           animFrameRef.current = requestAnimationFrame(updateLevel);
         }
       };
@@ -76,21 +85,34 @@ export function useAudioRecorder() {
     accumulatedTimeRef.current = 0;
     chunksRef.current = [];
 
+    const spec = AUDIO_BITRATE_SPECS[qualityPreset];
+
     try {
+      // High-fidelity microphone capture settings
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: true,
           noiseSuppression: true,
           autoGainControl: true,
+          channelCount: 2, // Stereo
+          sampleRate: spec.sampleRate,
+          sampleSize: 16,
         },
       });
       streamRef.current = stream;
 
       const mimeType = getSupportedAudioMimeType();
-      const recorder = new MediaRecorder(
-        stream,
-        mimeType ? { mimeType } : undefined
-      );
+      const recorderOptions: MediaRecorderOptions = {
+        ...(mimeType ? { mimeType } : {}),
+        audioBitsPerSecond: spec.bitrate,
+      };
+
+      let recorder: MediaRecorder;
+      try {
+        recorder = new MediaRecorder(stream, recorderOptions);
+      } catch {
+        recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      }
 
       recorder.ondataavailable = (e) => {
         if (e.data && e.data.size > 0) {
@@ -109,7 +131,7 @@ export function useAudioRecorder() {
         cleanupAudioAnalyser();
       };
 
-      recorder.start(500); // 500ms chunks
+      recorder.start(400); // 400ms time slice
       mediaRecorderRef.current = recorder;
       setRecorderState('recording');
       startTimeRef.current = Date.now();
@@ -133,7 +155,7 @@ export function useAudioRecorder() {
       setPermissionError(errorMsg);
       setRecorderState('idle');
     }
-  }, [audioUrl]);
+  }, [audioUrl, qualityPreset]);
 
   const pauseRecording = useCallback(() => {
     if (mediaRecorderRef.current && recorderState === 'recording') {
@@ -180,7 +202,11 @@ export function useAudioRecorder() {
   const cancelRecording = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
     if (mediaRecorderRef.current && recorderState !== 'idle') {
-      mediaRecorderRef.current.stop();
+      try {
+        mediaRecorderRef.current.stop();
+      } catch {
+        // Ignore
+      }
     }
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
@@ -213,6 +239,8 @@ export function useAudioRecorder() {
     audioUrl,
     audioLevel,
     permissionError,
+    qualityPreset,
+    setQualityPreset,
     startRecording,
     pauseRecording,
     resumeRecording,

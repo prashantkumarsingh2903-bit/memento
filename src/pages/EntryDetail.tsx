@@ -177,16 +177,27 @@ export const EntryDetail: React.FC<EntryDetailProps> = ({
             {entry.media
               .filter((m) => m.type === 'video')
               .map((video) => (
-                <div
-                  key={video.id}
-                  className="rounded-2xl overflow-hidden border border-app-border bg-black aspect-video relative shadow-workspace"
-                >
-                  <video
-                    src={video.url}
-                    controls
-                    poster={video.thumbnailUrl}
-                    className="w-full h-full object-cover"
-                  />
+                <div key={video.id} className="space-y-1.5">
+                  <div className="rounded-2xl overflow-hidden border border-app-border bg-black aspect-video relative shadow-workspace">
+                    <video
+                      src={video.url}
+                      controls
+                      poster={video.thumbnailUrl}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  {(video.resolution || video.frameRate || video.qualityPreset) && (
+                    <div className="flex items-center gap-2 text-[11px] text-app-text-secondary px-1">
+                      <span className="px-2.5 py-0.5 rounded-full bg-app-surface-secondary dark:bg-[#26252F] border border-app-border font-medium">
+                        {video.resolution || 'HD'} {video.frameRate ? `• ${video.frameRate} FPS` : ''}
+                      </span>
+                      {video.qualityPreset && (
+                        <span className="capitalize px-2.5 py-0.5 rounded-full bg-app-surface-secondary dark:bg-[#26252F] border border-app-border">
+                          {video.qualityPreset} preset
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
           </div>

@@ -193,19 +193,39 @@ export const JournalCard: React.FC<JournalCardProps> = ({
           {previewText}
         </p>
 
-        {/* Media Thumbnail preview if photos exist */}
+        {/* Media Thumbnail preview if photos or videos exist */}
         {entry.media && entry.media.length > 0 && (
           <div className="flex items-center gap-2 mb-4 overflow-hidden rounded-xl">
             {entry.media
-              .filter((m) => m.type === 'image' && m.url)
+              .filter((m) => (m.type === 'image' || m.type === 'video') && (m.url || m.thumbnailUrl))
               .slice(0, 3)
-              .map((img) => (
-                <img
-                  key={img.id}
-                  src={img.url}
-                  alt="Journal attachment"
-                  className="h-20 w-28 object-cover rounded-lg border border-app-border group-hover:scale-105 transition-transform"
-                />
+              .map((mediaItem) => (
+                <div key={mediaItem.id} className="relative h-20 w-28 shrink-0 overflow-hidden rounded-lg border border-app-border">
+                  {mediaItem.type === 'video' ? (
+                    mediaItem.thumbnailUrl ? (
+                      <img
+                        src={mediaItem.thumbnailUrl}
+                        alt="Video thumbnail"
+                        className="h-full w-full object-cover group-hover:scale-105 transition-transform"
+                      />
+                    ) : (
+                      <div className="h-full w-full bg-stone-900 flex items-center justify-center text-white/70">
+                        <Video className="w-5 h-5" />
+                      </div>
+                    )
+                  ) : (
+                    <img
+                      src={mediaItem.url}
+                      alt="Journal attachment"
+                      className="h-full w-full object-cover group-hover:scale-105 transition-transform"
+                    />
+                  )}
+                  {mediaItem.type === 'video' && (
+                    <span className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-black/70 text-[9px] font-semibold text-white backdrop-blur-sm">
+                      {mediaItem.duration ? `${Math.floor(mediaItem.duration)}s` : 'Video'}
+                    </span>
+                  )}
+                </div>
               ))}
           </div>
         )}

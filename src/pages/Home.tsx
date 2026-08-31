@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import type { EntryType, JournalEntry, Mood, UserProfile } from '../types';
 import { ReflectionPromptCard } from '../components/journal/ReflectionPromptCard';
-import { JournalCard } from '../components/journal/JournalCard';
+import { DayGroupedEntries } from '../components/journal/DayGroupedEntries';
 import { Button } from '../components/common/Button';
 import { QuoteOfTheDay, type MindfulQuote } from '../components/home/QuoteOfTheDay';
 import { HomeAnalytics } from '../components/home/HomeAnalytics';
@@ -278,18 +278,13 @@ export const Home: React.FC<HomePageProps> = ({
               </Button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {recentEntries.map((entry) => (
-                <JournalCard
-                  key={entry.id}
-                  entry={entry}
-                  onOpen={onOpenEntry}
-                  onEdit={onEditEntry}
-                  onDelete={onDeleteEntry}
-                  onToggleFavorite={onToggleFavorite}
-                />
-              ))}
-            </div>
+            <DayGroupedEntries
+              entries={entries.slice(0, 6)}
+              onOpenEntry={onOpenEntry}
+              onEditEntry={onEditEntry}
+              onDeleteEntry={onDeleteEntry}
+              onToggleFavorite={onToggleFavorite}
+            />
           )}
         </div>
       </section>
