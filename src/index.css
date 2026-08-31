@@ -3,35 +3,83 @@
 @tailwind utilities;
 
 :root {
-  /* Warm Neutral Palette (Light) */
-  --color-warm-bg: #FAF7F2;
-  --color-warm-card: #FFFFFF;
-  --color-warm-card-subtle: #F4EFEA;
-  --color-warm-border: #E8E2D8;
-  --color-warm-border-strong: #D5CCC0;
-  --color-warm-text: #24211D;
-  --color-warm-muted: #736C62;
-  --color-warm-faint: #B5AEA1;
-  --color-warm-accent: #B05534;
-  --color-warm-accent-hover: #964324;
-  --color-warm-accent-light: #F7EDE7;
-  --color-warm-accent-glow: rgba(176, 85, 52, 0.2);
+  /* Centralized Design Tokens (Light Theme) */
+  --color-primary: #6C4FF6;
+  --color-primary-dark: #5B3FD4;
+  --color-primary-light: #F1EEFF;
+  --color-primary-glow: rgba(108, 79, 246, 0.2);
+
+  --color-accent-cyan: #48D7E8;
+  --color-accent-pink: #D95CFF;
+
+  --color-bg: #F5F4FA;
+  --color-surface: #FFFFFF;
+  --color-surface-secondary: #F8F7FC;
+
+  --color-text-primary: #202124;
+  --color-text-secondary: #73727D;
+  --color-text-muted: #A1A0AA;
+
+  --color-border: #ECEBF2;
+  --color-border-strong: #DCDAE6;
+
+  --color-success: #48B884;
+  --color-warning: #F4B740;
+  --color-error: #E65C6A;
+
+  /* Backward Compatibility Mappings */
+  --color-warm-bg: var(--color-bg);
+  --color-warm-card: var(--color-surface);
+  --color-warm-card-subtle: var(--color-surface-secondary);
+  --color-warm-border: var(--color-border);
+  --color-warm-border-strong: var(--color-border-strong);
+  --color-warm-text: var(--color-text-primary);
+  --color-warm-muted: var(--color-text-secondary);
+  --color-warm-faint: var(--color-text-muted);
+  --color-warm-accent: var(--color-primary);
+  --color-warm-accent-hover: var(--color-primary-dark);
+  --color-warm-accent-light: var(--color-primary-light);
+  --color-warm-accent-glow: var(--color-primary-glow);
 }
 
 .dark {
-  /* Warm Carbon Palette (Dark) */
-  --color-warm-bg: #141311;
-  --color-warm-card: #1D1C19;
-  --color-warm-card-subtle: #252320;
-  --color-warm-border: #2C2A26;
-  --color-warm-border-strong: #3D3934;
-  --color-warm-text: #EFECE6;
-  --color-warm-muted: #9C968B;
-  --color-warm-faint: #5C574F;
-  --color-warm-accent: #D26E4B;
-  --color-warm-accent-hover: #E07E5B;
-  --color-warm-accent-light: #342019;
-  --color-warm-accent-glow: rgba(210, 110, 75, 0.25);
+  /* Centralized Design Tokens (Dark Theme) */
+  --color-primary: #856DF8;
+  --color-primary-dark: #6C4FF6;
+  --color-primary-light: rgba(108, 79, 246, 0.18);
+  --color-primary-glow: rgba(133, 109, 248, 0.3);
+
+  --color-accent-cyan: #48D7E8;
+  --color-accent-pink: #D95CFF;
+
+  --color-bg: #15141B;
+  --color-surface: #201F28;
+  --color-surface-secondary: #26252F;
+
+  --color-text-primary: #F5F4FA;
+  --color-text-secondary: #A1A0AA;
+  --color-text-muted: #73727D;
+
+  --color-border: #302F3C;
+  --color-border-strong: #3E3C4D;
+
+  --color-success: #48B884;
+  --color-warning: #F4B740;
+  --color-error: #E65C6A;
+
+  /* Backward Compatibility Mappings */
+  --color-warm-bg: var(--color-bg);
+  --color-warm-card: var(--color-surface);
+  --color-warm-card-subtle: var(--color-surface-secondary);
+  --color-warm-border: var(--color-border);
+  --color-warm-border-strong: var(--color-border-strong);
+  --color-warm-text: var(--color-text-primary);
+  --color-warm-muted: var(--color-text-secondary);
+  --color-warm-faint: var(--color-text-muted);
+  --color-warm-accent: var(--color-primary);
+  --color-warm-accent-hover: var(--color-primary-dark);
+  --color-warm-accent-light: var(--color-primary-light);
+  --color-warm-accent-glow: var(--color-primary-glow);
 }
 
 * {
@@ -40,15 +88,16 @@
 }
 
 body {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   min-height: 100vh;
   margin: 0;
-  background-color: var(--color-warm-bg);
-  color: var(--color-warm-text);
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
   transition: background-color 0.2s ease, color 0.2s ease;
+  overflow-x: hidden;
 }
 
-/* Custom subtle scrollbars */
+/* Custom modern scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -59,18 +108,42 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-warm-border-strong);
+  background: var(--color-border);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-warm-muted);
+  background: var(--color-border-strong);
 }
 
 /* Focus styling */
 :focus-visible {
-  outline: 2px solid var(--color-warm-accent);
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
+}
+
+/* Gradient Utility Classes */
+.bg-primary-gradient {
+  background: linear-gradient(135deg, #6C4FF6 0%, #D95CFF 50%, #48D7E8 100%);
+}
+
+.bg-primary-gradient-subtle {
+  background: linear-gradient(135deg, rgba(108, 79, 246, 0.08) 0%, rgba(217, 92, 255, 0.06) 50%, rgba(72, 215, 232, 0.08) 100%);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #6C4FF6 0%, #D95CFF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Floating White Workspace Card Shadow */
+.workspace-shadow {
+  box-shadow: 0 10px 40px rgba(40, 35, 80, 0.05);
+}
+
+.dark .workspace-shadow {
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
 }
 
 /* Audio Waveform animation */
@@ -79,7 +152,7 @@ body {
     height: 6px;
   }
   50% {
-    height: 28px;
+    height: 32px;
   }
   100% {
     height: 10px;

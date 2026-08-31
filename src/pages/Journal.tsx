@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Search,
   SlidersHorizontal,
@@ -36,7 +36,8 @@ export const Journal: React.FC<JournalPageProps> = ({
   onToggleFavorite,
   onStartCapture,
 }) => {
-  const [showFilters, setShowFilters] = React.useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [timeRange, setTimeRange] = useState<'all' | 'week' | 'month' | 'year'>('all');
 
   const entryTypeOptions: { value: EntryType | 'all'; label: string }[] = [
     { value: 'all', label: 'All types' },
@@ -47,14 +48,36 @@ export const Journal: React.FC<JournalPageProps> = ({
     { value: 'mixed', label: '🧩 Mixed' },
   ];
 
+  // Filter entries by time range client-side
+  const filteredByTime = entries.filter((entry) => {
+    if (timeRange === 'all') return true;
+    const date = new Date(entry.createdAt);
+    const now = new Date();
+    if (timeRange === 'week') {
+      const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      return date >= oneWeekAgo;
+    }
+    if (timeRange === 'month') {
+      const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      return date >= oneMonthAgo;
+    }
+    if (timeRange === 'year') {
+      const oneYearAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+      return date >= oneYearAgo;
+    }
+    return true;
+  });
+
   const hasActiveFilters =
     filters.searchQuery !== '' ||
     filters.selectedMood !== 'all' ||
     filters.selectedType !== 'all' ||
     filters.selectedTag !== 'all' ||
-    filters.favoritesOnly;
+    filters.favoritesOnly ||
+    timeRange !== 'all';
 
   const resetFilters = () => {
+    setTimeRange('all');
     onFilterChange({
       searchQuery: '',
       selectedMood: 'all',
@@ -65,16 +88,16 @@ export const Journal: React.FC<JournalPageProps> = ({
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      {/* Header & Search Bar */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between gap-4">
+    <div className="space-y-6 animate-fade-in">
+      {/* Header & Controls */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="font-serif text-3xl sm:text-4xl font-medium tracking-tight text-warm-text">
+            <h1 className="font-sans text-2xl sm:text-3xl font-extrabold tracking-tight text-app-text">
               Journal Timeline
             </h1>
-            <p className="text-xs sm:text-sm text-warm-muted mt-1">
-              {entries.length} {entries.length === 1 ? 'memory' : 'memories'} in total
+            <p className="text-xs sm:text-sm text-app-text-secondary mt-1">
+              {filteredByTime.length} {filteredByTime.length === 1 ? 'entry' : 'entries'} captured
             </p>
           </div>
 
@@ -87,56 +110,85 @@ export const Journal: React.FC<JournalPageProps> = ({
           </Button>
         </div>
 
-        {/* Search Input */}
+        {/* Time Segmented Control Tabs */}
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="inline-flex p-1 rounded-xl bg-app-surface-secondary dark:bg-[#26252F] border border-app-border">
+            {(['all', 'week', 'month', 'year'] as const).map((range) => {
+              const labels = {
+                all: 'All Time',
+                week: 'This Week',
+                month: 'This Month',
+                year: 'This Year',
+              };
+              const isActive = timeRange === range;
+              return (
+                <button
+                  key={range}
+                  onClick={() => setTimeRange(range)}
+                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                    isActive
+                      ? 'bg-white dark:bg-[#201F28] text-[#6C4FF6] dark:text-[#856DF8] shadow-subtle'
+                      : 'text-app-text-secondary hover:text-app-text'
+                  }`}
+                >
+                  {labels[range]}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Quick Filter toggle */}
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`px-3 py-1.5 rounded-xl border transition-all flex items-center gap-1.5 text-xs font-semibold cursor-pointer ${
+              showFilters || hasActiveFilters
+                ? 'bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 text-[#6C4FF6] dark:text-[#856DF8] border-[#6C4FF6]/30'
+                : 'bg-white dark:bg-[#201F28] border-app-border text-app-text-secondary hover:text-app-text'
+            }`}
+          >
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+            <span>Filters</span>
+            {hasActiveFilters && (
+              <span className="w-2 h-2 rounded-full bg-[#6C4FF6]" />
+            )}
+          </button>
+        </div>
+
+        {/* Search Input Bar */}
         <div className="relative flex items-center gap-2">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-warm-faint absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-app-text-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={filters.searchQuery}
               onChange={(e) =>
                 onFilterChange({ ...filters, searchQuery: e.target.value })
               }
-              placeholder="Search by title, thoughts, tags, transcripts, themes..."
-              className="w-full bg-warm-card border border-warm-border rounded-2xl pl-10 pr-10 py-2.5 text-sm text-warm-text placeholder:text-warm-faint focus:border-warm-accent focus:ring-2 focus:ring-warm-accent/15 transition-all outline-none"
+              placeholder="Search memories by words, tags, transcripts, themes..."
+              className="w-full bg-white dark:bg-[#201F28] border border-app-border rounded-xl pl-10 pr-10 py-2.5 text-sm text-app-text placeholder:text-app-text-muted focus:border-[#6C4FF6] focus:ring-2 focus:ring-[#6C4FF6]/15 transition-all outline-none"
             />
             {filters.searchQuery && (
               <button
                 onClick={() => onFilterChange({ ...filters, searchQuery: '' })}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-warm-faint hover:text-warm-text"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-app-text-muted hover:text-app-text cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
-
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`p-2.5 rounded-2xl border transition-all flex items-center gap-1.5 text-xs font-medium ${
-              showFilters || hasActiveFilters
-                ? 'bg-warm-accent-light text-warm-accent border-warm-accent/30'
-                : 'bg-warm-card border-warm-border text-warm-muted hover:text-warm-text'
-            }`}
-          >
-            <SlidersHorizontal className="w-4 h-4" />
-            <span className="hidden sm:inline">Filters</span>
-            {hasActiveFilters && (
-              <span className="w-2 h-2 rounded-full bg-warm-accent" />
-            )}
-          </button>
         </div>
 
         {/* Filter Drawer / Panel */}
         {showFilters && (
-          <div className="bg-warm-card border border-warm-border rounded-3xl p-5 shadow-subtle space-y-4 animate-slide-up">
+          <div className="bg-white dark:bg-[#201F28] border border-app-border rounded-card p-5 shadow-subtle space-y-4 animate-slide-up">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wider text-warm-muted">
-                Filter Journal
+              <span className="text-xs font-bold uppercase tracking-wider text-app-text-secondary">
+                Filter Criteria
               </span>
               {hasActiveFilters && (
                 <button
                   onClick={resetFilters}
-                  className="text-xs text-warm-accent hover:underline"
+                  className="text-xs text-[#6C4FF6] hover:underline font-semibold cursor-pointer"
                 >
                   Reset all filters
                 </button>
@@ -145,7 +197,7 @@ export const Journal: React.FC<JournalPageProps> = ({
 
             {/* Type Filter */}
             <div>
-              <label className="text-xs text-warm-muted font-medium block mb-2">
+              <label className="text-xs text-app-text-secondary font-medium block mb-2">
                 Entry Type
               </label>
               <div className="flex items-center gap-1.5 flex-wrap">
@@ -155,10 +207,10 @@ export const Journal: React.FC<JournalPageProps> = ({
                     onClick={() =>
                       onFilterChange({ ...filters, selectedType: opt.value })
                     }
-                    className={`text-xs px-3 py-1.5 rounded-xl border font-medium transition-all ${
+                    className={`text-xs px-3 py-1.5 rounded-lg border font-semibold transition-all cursor-pointer ${
                       filters.selectedType === opt.value
-                        ? 'bg-warm-accent-light text-warm-accent border-warm-accent/40 font-semibold'
-                        : 'bg-warm-card-subtle text-warm-muted border-warm-border hover:text-warm-text'
+                        ? 'bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 text-[#6C4FF6] dark:text-[#856DF8] border-[#6C4FF6]/40'
+                        : 'bg-app-surface-secondary dark:bg-[#26252F] text-app-text-secondary border-app-border hover:text-app-text'
                     }`}
                   >
                     {opt.label}
@@ -169,7 +221,7 @@ export const Journal: React.FC<JournalPageProps> = ({
 
             {/* Mood Filter */}
             <div>
-              <label className="text-xs text-warm-muted font-medium block mb-2">
+              <label className="text-xs text-app-text-secondary font-medium block mb-2">
                 Mood
               </label>
               <div className="flex items-center gap-1.5 flex-wrap">
@@ -177,10 +229,10 @@ export const Journal: React.FC<JournalPageProps> = ({
                   onClick={() =>
                     onFilterChange({ ...filters, selectedMood: 'all' })
                   }
-                  className={`text-xs px-3 py-1.5 rounded-xl border font-medium transition-all ${
+                  className={`text-xs px-3 py-1.5 rounded-lg border font-semibold transition-all cursor-pointer ${
                     filters.selectedMood === 'all'
-                      ? 'bg-warm-accent-light text-warm-accent border-warm-accent/40 font-semibold'
-                      : 'bg-warm-card-subtle text-warm-muted border-warm-border hover:text-warm-text'
+                      ? 'bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 text-[#6C4FF6] dark:text-[#856DF8] border-[#6C4FF6]/40'
+                      : 'bg-app-surface-secondary dark:bg-[#26252F] text-app-text-secondary border-app-border hover:text-app-text'
                   }`}
                 >
                   All moods
@@ -191,10 +243,10 @@ export const Journal: React.FC<JournalPageProps> = ({
                     onClick={() =>
                       onFilterChange({ ...filters, selectedMood: m.value as Mood })
                     }
-                    className={`text-xs px-2.5 py-1.5 rounded-xl border font-medium transition-all flex items-center gap-1 ${
+                    className={`text-xs px-2.5 py-1.5 rounded-lg border font-medium transition-all flex items-center gap-1 cursor-pointer ${
                       filters.selectedMood === m.value
-                        ? 'bg-warm-accent-light text-warm-accent border-warm-accent/40 font-semibold'
-                        : 'bg-warm-card-subtle text-warm-muted border-warm-border hover:text-warm-text'
+                        ? 'bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 text-[#6C4FF6] dark:text-[#856DF8] border-[#6C4FF6]/40 font-semibold'
+                        : 'bg-app-surface-secondary dark:bg-[#26252F] text-app-text-secondary border-app-border hover:text-app-text'
                     }`}
                   >
                     <span>{m.emoji}</span>
@@ -207,7 +259,7 @@ export const Journal: React.FC<JournalPageProps> = ({
             {/* Tags Filter */}
             {allTags.length > 0 && (
               <div>
-                <label className="text-xs text-warm-muted font-medium block mb-2">
+                <label className="text-xs text-app-text-secondary font-medium block mb-2">
                   Tags
                 </label>
                 <div className="flex items-center gap-1.5 flex-wrap max-h-24 overflow-y-auto">
@@ -215,10 +267,10 @@ export const Journal: React.FC<JournalPageProps> = ({
                     onClick={() =>
                       onFilterChange({ ...filters, selectedTag: 'all' })
                     }
-                    className={`text-xs px-2.5 py-1 rounded-full border transition-all ${
+                    className={`text-xs px-2.5 py-1 rounded-full border transition-all cursor-pointer ${
                       filters.selectedTag === 'all'
-                        ? 'bg-warm-accent-light text-warm-accent border-warm-accent/40 font-semibold'
-                        : 'bg-warm-card-subtle text-warm-muted border-warm-border'
+                        ? 'bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 text-[#6C4FF6] dark:text-[#856DF8] border-[#6C4FF6]/40 font-semibold'
+                        : 'bg-app-surface-secondary dark:bg-[#26252F] text-app-text-secondary border-app-border'
                     }`}
                   >
                     All Tags
@@ -229,10 +281,10 @@ export const Journal: React.FC<JournalPageProps> = ({
                       onClick={() =>
                         onFilterChange({ ...filters, selectedTag: tag })
                       }
-                      className={`text-xs px-2.5 py-1 rounded-full border transition-all ${
+                      className={`text-xs px-2.5 py-1 rounded-full border transition-all cursor-pointer ${
                         filters.selectedTag === tag
-                          ? 'bg-warm-accent-light text-warm-accent border-warm-accent/40 font-semibold'
-                          : 'bg-warm-card-subtle text-warm-muted border-warm-border hover:text-warm-text'
+                          ? 'bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 text-[#6C4FF6] dark:text-[#856DF8] border-[#6C4FF6]/40 font-semibold'
+                          : 'bg-app-surface-secondary dark:bg-[#26252F] text-app-text-secondary border-app-border hover:text-app-text'
                       }`}
                     >
                       #{tag}
@@ -243,10 +295,10 @@ export const Journal: React.FC<JournalPageProps> = ({
             )}
 
             {/* Favorites Only Toggle */}
-            <div className="pt-2 border-t border-warm-border/60 flex items-center justify-between">
+            <div className="pt-2 border-t border-app-border flex items-center justify-between">
               <label
                 htmlFor="fav-filter"
-                className="text-xs text-warm-muted font-medium flex items-center gap-1.5 cursor-pointer"
+                className="text-xs text-app-text-secondary font-semibold flex items-center gap-1.5 cursor-pointer"
               >
                 <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
                 <span>Favorites only</span>
@@ -258,7 +310,7 @@ export const Journal: React.FC<JournalPageProps> = ({
                 onChange={(e) =>
                   onFilterChange({ ...filters, favoritesOnly: e.target.checked })
                 }
-                className="rounded text-warm-accent focus:ring-warm-accent"
+                className="w-4 h-4 rounded text-[#6C4FF6] focus:ring-[#6C4FF6] cursor-pointer"
               />
             </div>
           </div>
@@ -267,16 +319,16 @@ export const Journal: React.FC<JournalPageProps> = ({
 
       {/* Timeline Entries List */}
       <div className="space-y-4">
-        {entries.length === 0 ? (
-          <div className="bg-warm-card border border-warm-border rounded-3xl p-12 text-center space-y-4">
-            <div className="w-12 h-12 rounded-full bg-warm-card-subtle text-warm-muted flex items-center justify-center mx-auto">
+        {filteredByTime.length === 0 ? (
+          <div className="bg-white dark:bg-[#201F28] border border-app-border rounded-card p-12 text-center space-y-4 shadow-subtle">
+            <div className="w-12 h-12 rounded-2xl bg-app-surface-secondary dark:bg-[#26252F] text-app-text-muted flex items-center justify-center mx-auto">
               <BookOpen className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="font-serif text-xl font-medium text-warm-text">
+              <h3 className="font-sans text-lg font-bold text-app-text">
                 {hasActiveFilters ? 'No matching memories found' : 'No journal entries yet'}
               </h3>
-              <p className="text-xs sm:text-sm text-warm-muted max-w-sm mx-auto mt-1">
+              <p className="text-xs sm:text-sm text-app-text-secondary max-w-sm mx-auto mt-1">
                 {hasActiveFilters
                   ? 'Try adjusting your search query or relaxing your filter conditions.'
                   : 'Begin by recording what is currently on your mind.'}
@@ -298,7 +350,7 @@ export const Journal: React.FC<JournalPageProps> = ({
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {entries.map((entry) => (
+            {filteredByTime.map((entry) => (
               <JournalCard
                 key={entry.id}
                 entry={entry}

@@ -22,7 +22,9 @@ import { aiService } from '../../services/ai/aiService';
 interface VideoRecorderModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSaveVideoEntry: (entryData: Omit<JournalEntry, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  onSaveVideoEntry: (
+    entryData: Omit<JournalEntry, 'id' | 'createdAt' | 'updatedAt'>
+  ) => void;
   initialMood?: Mood;
 }
 
@@ -104,20 +106,21 @@ export const VideoRecorderModal: React.FC<VideoRecorderModalProps> = ({
       }
     }
 
-    const mediaList = videoUrl && videoBlob
-      ? [
-          {
-            id: `media-video-${Date.now()}`,
-            type: 'video' as const,
-            url: videoUrl,
-            blob: videoBlob,
-            duration,
-            thumbnailUrl,
-            name: `video-journal-${Date.now()}.webm`,
-            createdAt: new Date().toISOString(),
-          },
-        ]
-      : [];
+    const mediaList =
+      videoUrl && videoBlob
+        ? [
+            {
+              id: `media-video-${Date.now()}`,
+              type: 'video' as const,
+              url: videoUrl,
+              blob: videoBlob,
+              duration,
+              thumbnailUrl,
+              name: `video-journal-${Date.now()}.webm`,
+              createdAt: new Date().toISOString(),
+            },
+          ]
+        : [];
 
     onSaveVideoEntry({
       title: defaultTitle,
@@ -146,24 +149,24 @@ export const VideoRecorderModal: React.FC<VideoRecorderModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
       <div
-        className="fixed inset-0 bg-stone-950/80 backdrop-blur-md"
+        className="fixed inset-0 bg-stone-900/60 dark:bg-black/80 backdrop-blur-md"
         onClick={handleClose}
       />
 
-      <div className="relative w-full max-w-2xl bg-warm-card border border-warm-border rounded-3xl p-6 sm:p-7 shadow-elevated z-10 animate-slide-up space-y-5 max-h-[90vh] overflow-y-auto">
+      <div className="relative w-full max-w-2xl bg-white dark:bg-[#201F28] border border-app-border rounded-modal p-6 sm:p-7 shadow-workspace z-10 animate-slide-up space-y-5 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/40">
+            <div className="p-1.5 rounded-xl bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 text-[#6C4FF6] dark:text-[#856DF8] border border-[#6C4FF6]/20">
               <Video className="w-4 h-4" />
             </div>
-            <h3 className="font-serif text-2xl font-medium text-warm-text">
+            <h3 className="font-sans text-xl sm:text-2xl font-bold text-app-text">
               Video Journal
             </h3>
           </div>
           <button
             onClick={handleClose}
-            className="p-1.5 rounded-full text-warm-muted hover:text-warm-text hover:bg-warm-card-subtle transition-colors"
+            className="p-1.5 rounded-full text-app-text-muted hover:text-app-text hover:bg-app-surface-secondary dark:hover:bg-[#26252F] transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -171,11 +174,11 @@ export const VideoRecorderModal: React.FC<VideoRecorderModalProps> = ({
 
         {/* Permission Error Banner */}
         {permissionError && (
-          <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/40 flex items-start gap-3 text-xs text-amber-800 dark:text-amber-300">
+          <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/40 flex items-start gap-3 text-xs text-amber-800 dark:text-amber-300">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <div>
               <p className="font-semibold">{permissionError}</p>
-              <p className="mt-1 text-warm-muted">
+              <p className="mt-1 text-app-text-secondary">
                 Please verify your browser permissions for camera and microphone.
               </p>
             </div>
@@ -186,7 +189,7 @@ export const VideoRecorderModal: React.FC<VideoRecorderModalProps> = ({
         {recorderState !== 'stopped' && (
           <div className="space-y-4">
             {/* Live Camera Viewfinder */}
-            <div className="relative rounded-3xl overflow-hidden bg-black aspect-video flex items-center justify-center border border-warm-border shadow-soft">
+            <div className="relative rounded-2xl overflow-hidden bg-black aspect-video flex items-center justify-center border border-app-border shadow-workspace">
               <video
                 ref={videoPreviewRef}
                 autoPlay
@@ -226,7 +229,7 @@ export const VideoRecorderModal: React.FC<VideoRecorderModalProps> = ({
               {recorderState === 'previewing' && (
                 <Button
                   size="md"
-                  className="bg-rose-600 hover:bg-rose-700 font-semibold"
+                  className="bg-[#6C4FF6] hover:bg-[#5B3FD4] font-semibold"
                   onClick={handleStartRecording}
                   leftIcon={<Circle className="w-4 h-4 fill-white" />}
                 >
@@ -283,7 +286,7 @@ export const VideoRecorderModal: React.FC<VideoRecorderModalProps> = ({
         {recorderState === 'stopped' && (
           <div className="space-y-5 animate-slide-up">
             {/* Video Playback Container */}
-            <div className="rounded-3xl overflow-hidden bg-black aspect-video border border-warm-border shadow-soft">
+            <div className="rounded-2xl overflow-hidden bg-black aspect-video border border-app-border shadow-workspace">
               {videoUrl && (
                 <video
                   src={videoUrl}
@@ -295,7 +298,7 @@ export const VideoRecorderModal: React.FC<VideoRecorderModalProps> = ({
 
             {/* Title */}
             <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-warm-muted block mb-1">
+              <label className="text-xs font-bold uppercase tracking-wider text-app-text-secondary block mb-1">
                 Title
               </label>
               <input
@@ -303,13 +306,13 @@ export const VideoRecorderModal: React.FC<VideoRecorderModalProps> = ({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Give this video memory a title..."
-                className="w-full font-serif text-xl bg-warm-card border border-warm-border rounded-2xl px-4 py-2.5 text-warm-text placeholder:text-warm-faint outline-none focus:border-warm-accent"
+                className="w-full font-sans text-base bg-white dark:bg-[#201F28] border border-app-border rounded-xl px-4 py-2.5 text-app-text placeholder:text-app-text-muted outline-none focus:border-[#6C4FF6]"
               />
             </div>
 
             {/* Mood selector */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-warm-muted block">
+              <label className="text-xs font-bold uppercase tracking-wider text-app-text-secondary block">
                 Mood
               </label>
               <MoodSelector
@@ -321,28 +324,28 @@ export const VideoRecorderModal: React.FC<VideoRecorderModalProps> = ({
 
             {/* Written Notes / Reflections alongside video */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-warm-muted block">
+              <label className="text-xs font-bold uppercase tracking-wider text-app-text-secondary block">
                 Reflection Notes (Optional)
               </label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Add any written thoughts or insights to accompany this video..."
-                className="w-full bg-warm-card border border-warm-border rounded-2xl p-4 text-xs sm:text-sm text-warm-text placeholder:text-warm-faint outline-none focus:border-warm-accent leading-relaxed resize-none"
+                className="w-full bg-white dark:bg-[#201F28] border border-app-border rounded-xl p-4 text-xs sm:text-sm text-app-text placeholder:text-app-text-muted outline-none focus:border-[#6C4FF6] leading-relaxed resize-none"
                 rows={3}
               />
             </div>
 
             {/* Spoken Transcript if captured */}
             {transcript && (
-              <div className="bg-warm-card-subtle border border-warm-border rounded-2xl p-4 space-y-1">
-                <span className="text-[10px] uppercase font-bold tracking-wider text-warm-muted block">
+              <div className="bg-app-surface-secondary dark:bg-[#26252F] border border-app-border rounded-xl p-4 space-y-1">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-app-text-secondary block">
                   Detected Transcript
                 </span>
                 <textarea
                   value={transcript}
                   onChange={(e) => setTranscript(e.target.value)}
-                  className="w-full text-xs text-warm-text italic bg-transparent outline-none resize-none"
+                  className="w-full text-xs text-app-text italic bg-transparent outline-none resize-none"
                   rows={2}
                 />
               </div>
@@ -350,14 +353,14 @@ export const VideoRecorderModal: React.FC<VideoRecorderModalProps> = ({
 
             {/* Tags */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-warm-muted block">
+              <label className="text-xs font-bold uppercase tracking-wider text-app-text-secondary block">
                 Tags
               </label>
               <div className="flex items-center gap-1.5 flex-wrap">
                 {tags.map((t) => (
                   <span
                     key={t}
-                    className="text-xs px-2.5 py-0.5 rounded-full bg-warm-card border border-warm-border text-warm-text font-medium"
+                    className="text-xs px-3 py-1 rounded-full bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 border border-[#6C4FF6]/20 text-[#6C4FF6] dark:text-[#856DF8] font-semibold"
                   >
                     #{t}
                   </span>
@@ -370,7 +373,7 @@ export const VideoRecorderModal: React.FC<VideoRecorderModalProps> = ({
                       setTags([...tags, tag.trim().replace(/^#/, '')]);
                     }
                   }}
-                  className="text-xs text-warm-muted hover:text-warm-text px-2 py-0.5 rounded-full border border-dashed border-warm-border"
+                  className="text-xs text-app-text-secondary hover:text-app-text px-3 py-1 rounded-full border border-dashed border-app-border cursor-pointer hover:bg-app-surface-secondary"
                 >
                   + Tag
                 </button>
@@ -378,7 +381,7 @@ export const VideoRecorderModal: React.FC<VideoRecorderModalProps> = ({
             </div>
 
             {/* Footer Action buttons */}
-            <div className="flex items-center justify-between pt-3 border-t border-warm-border">
+            <div className="flex items-center justify-between pt-3 border-t border-app-border">
               <Button
                 variant="ghost"
                 size="sm"

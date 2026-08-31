@@ -67,35 +67,37 @@ export const EntryDetail: React.FC<EntryDetailProps> = ({
   const getTypeIcon = () => {
     switch (entry.type) {
       case 'voice':
-        return <Mic className="w-4 h-4 text-rose-500" />;
+        return <Mic className="w-4 h-4 text-[#6C4FF6]" />;
       case 'video':
-        return <Video className="w-4 h-4 text-indigo-500" />;
+        return <Video className="w-4 h-4 text-[#D95CFF]" />;
       case 'photo':
         return <Camera className="w-4 h-4 text-emerald-500" />;
       case 'mixed':
-        return <Layers className="w-4 h-4 text-purple-500" />;
+        return <Layers className="w-4 h-4 text-[#48D7E8]" />;
       default:
-        return <PenLine className="w-4 h-4 text-amber-500" />;
+        return <PenLine className="w-4 h-4 text-[#6C4FF6]" />;
     }
   };
 
   return (
     <div className="max-w-3xl mx-auto space-y-8 animate-fade-in">
       {/* Top Action Bar */}
-      <div className="flex items-center justify-between gap-3 border-b border-warm-border/80 pb-4">
+      <div className="flex items-center justify-between gap-3 border-b border-app-border pb-4">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-sm text-warm-muted hover:text-warm-text transition-colors cursor-pointer"
+          className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-app-text-secondary hover:text-app-text transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Journal Timeline</span>
         </button>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
           <button
             onClick={() => onToggleFavorite(entry.id)}
-            className={`p-2 rounded-xl border border-warm-border hover:bg-warm-card-subtle transition-colors ${
-              entry.isFavorite ? 'text-rose-500 bg-rose-50 dark:bg-rose-950/30' : 'text-warm-muted'
+            className={`p-2 rounded-xl border transition-colors cursor-pointer ${
+              entry.isFavorite
+                ? 'text-rose-500 bg-rose-50 dark:bg-rose-950/30 border-rose-200 dark:border-rose-900/40'
+                : 'text-app-text-muted border-app-border hover:text-app-text hover:bg-app-surface-secondary'
             }`}
             title={entry.isFavorite ? 'Favorited' : 'Favorite'}
           >
@@ -128,19 +130,19 @@ export const EntryDetail: React.FC<EntryDetailProps> = ({
       <article className="space-y-6">
         {/* Date & Mood Metadata */}
         <div className="flex items-center justify-between gap-3 flex-wrap">
-          <div className="flex items-center gap-3 text-xs text-warm-muted">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-warm-card border border-warm-border font-medium text-warm-text">
+          <div className="flex items-center gap-3 text-xs text-app-text-secondary">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-app-surface-secondary dark:bg-[#26252F] border border-app-border font-semibold text-app-text">
               {getTypeIcon()}
               <span className="capitalize">{entry.type} Journal</span>
             </span>
 
-            <span className="flex items-center gap-1">
-              <Calendar className="w-3.5 h-3.5 text-warm-faint" />
+            <span className="flex items-center gap-1 font-medium">
+              <Calendar className="w-3.5 h-3.5 text-app-text-muted" />
               <span>{formattedDate}</span>
             </span>
 
-            <span className="flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5 text-warm-faint" />
+            <span className="flex items-center gap-1 font-medium">
+              <Clock className="w-3.5 h-3.5 text-app-text-muted" />
               <span>{formattedTime}</span>
             </span>
           </div>
@@ -154,7 +156,7 @@ export const EntryDetail: React.FC<EntryDetailProps> = ({
         </div>
 
         {/* Title */}
-        <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-warm-text leading-tight">
+        <h1 className="font-sans text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-app-text leading-tight">
           {entry.title || 'Untitled Memory'}
         </h1>
 
@@ -162,7 +164,7 @@ export const EntryDetail: React.FC<EntryDetailProps> = ({
         {entry.tags && entry.tags.length > 0 && (
           <div className="flex items-center gap-1.5 flex-wrap">
             {entry.tags.map((tag) => (
-              <Badge key={tag} variant="default" size="md">
+              <Badge key={tag} variant="accent" size="sm">
                 #{tag}
               </Badge>
             ))}
@@ -177,7 +179,7 @@ export const EntryDetail: React.FC<EntryDetailProps> = ({
               .map((video) => (
                 <div
                   key={video.id}
-                  className="rounded-3xl overflow-hidden border border-warm-border bg-black aspect-video relative shadow-elevated"
+                  className="rounded-2xl overflow-hidden border border-app-border bg-black aspect-video relative shadow-workspace"
                 >
                   <video
                     src={video.url}
@@ -198,7 +200,7 @@ export const EntryDetail: React.FC<EntryDetailProps> = ({
               .map((img) => (
                 <div
                   key={img.id}
-                  className="rounded-2xl overflow-hidden border border-warm-border bg-warm-card shadow-subtle"
+                  className="rounded-2xl overflow-hidden border border-app-border bg-white dark:bg-[#201F28] shadow-subtle"
                 >
                   <img
                     src={img.url}
@@ -206,7 +208,7 @@ export const EntryDetail: React.FC<EntryDetailProps> = ({
                     className="w-full h-64 object-cover"
                   />
                   {img.name && (
-                    <p className="p-2.5 text-[11px] text-warm-muted truncate">
+                    <p className="p-2.5 text-[11px] text-app-text-secondary truncate border-t border-app-border">
                       {img.name}
                     </p>
                   )}
@@ -228,40 +230,40 @@ export const EntryDetail: React.FC<EntryDetailProps> = ({
 
         {/* Text Content */}
         {entry.text && (
-          <div className="font-serif text-lg sm:text-xl text-warm-text leading-relaxed whitespace-pre-wrap pt-2">
+          <div className="font-sans text-base sm:text-lg text-app-text leading-relaxed whitespace-pre-wrap pt-2">
             {entry.text}
           </div>
         )}
 
         {/* Spoken Transcript */}
         {entry.transcript && (
-          <div className="bg-warm-card-subtle/80 border border-warm-border rounded-3xl p-6 space-y-2.5">
+          <div className="bg-app-surface-secondary dark:bg-[#26252F] border border-app-border rounded-2xl p-5 space-y-2">
             <div className="flex items-center gap-2">
-              <Mic className="w-4 h-4 text-rose-500" />
-              <h4 className="text-xs uppercase tracking-wider font-semibold text-warm-muted">
+              <Mic className="w-4 h-4 text-[#6C4FF6]" />
+              <h4 className="text-xs uppercase tracking-wider font-bold text-app-text-secondary">
                 Voice Transcript
               </h4>
             </div>
-            <p className="text-sm sm:text-base text-warm-text italic leading-relaxed">
+            <p className="text-xs sm:text-sm text-app-text italic leading-relaxed">
               "{entry.transcript}"
             </p>
           </div>
         )}
 
         {/* AI Reflection Section */}
-        <div className="pt-6 border-t border-warm-border/80">
+        <div className="pt-6 border-t border-app-border">
           {entry.reflection ? (
-            <div className="bg-gradient-to-br from-warm-card to-warm-accent-light/40 border border-warm-accent/30 rounded-3xl p-6 sm:p-7 shadow-subtle space-y-6">
+            <div className="bg-white dark:bg-[#201F28] border border-[#6C4FF6]/30 rounded-card p-6 sm:p-7 shadow-subtle space-y-6">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-xl bg-warm-accent-light text-warm-accent border border-warm-accent/25">
+                  <div className="p-2 rounded-xl bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 text-[#6C4FF6] dark:text-[#856DF8] border border-[#6C4FF6]/20">
                     <Sparkles className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="font-serif text-xl font-medium text-warm-text">
+                    <h3 className="font-sans text-lg font-bold text-app-text">
                       AI Reflection & Understandings
                     </h3>
-                    <p className="text-[11px] text-warm-muted">
+                    <p className="text-[11px] text-app-text-secondary">
                       Supportive, non-prescriptive synthesis
                     </p>
                   </div>
@@ -280,10 +282,10 @@ export const EntryDetail: React.FC<EntryDetailProps> = ({
               {/* What I noticed */}
               {entry.reflection.summary && (
                 <div className="space-y-1.5">
-                  <h4 className="text-xs font-semibold uppercase tracking-wider text-warm-muted">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-app-text-secondary">
                     What I noticed
                   </h4>
-                  <p className="text-sm sm:text-base text-warm-text leading-relaxed">
+                  <p className="text-xs sm:text-sm text-app-text leading-relaxed">
                     {entry.reflection.summary}
                   </p>
                 </div>
@@ -292,13 +294,13 @@ export const EntryDetail: React.FC<EntryDetailProps> = ({
               {/* Observations */}
               {entry.reflection.observations && entry.reflection.observations.length > 0 && (
                 <div className="space-y-1.5">
-                  <h4 className="text-xs font-semibold uppercase tracking-wider text-warm-muted">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-app-text-secondary">
                     Observations
                   </h4>
                   <ul className="space-y-2">
                     {entry.reflection.observations.map((obs, i) => (
-                      <li key={i} className="text-sm text-warm-text flex items-start gap-2.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-warm-accent mt-2 shrink-0" />
+                      <li key={i} className="text-xs sm:text-sm text-app-text flex items-start gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#6C4FF6] mt-2 shrink-0" />
                         <span>{obs}</span>
                       </li>
                     ))}
@@ -309,14 +311,17 @@ export const EntryDetail: React.FC<EntryDetailProps> = ({
               {/* Themes */}
               {entry.reflection.themes && entry.reflection.themes.length > 0 && (
                 <div className="space-y-2">
-                  <h4 className="text-xs font-semibold uppercase tracking-wider text-warm-muted">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-app-text-secondary">
                     Possible Themes
                   </h4>
                   <div className="flex items-center gap-2 flex-wrap">
                     {entry.reflection.themes.map((theme) => (
-                      <Badge key={theme} variant="accent" size="md">
+                      <span
+                        key={theme}
+                        className="text-xs px-3 py-1 rounded-full bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 border border-[#6C4FF6]/20 font-semibold text-[#6C4FF6] dark:text-[#856DF8]"
+                      >
                         {theme}
-                      </Badge>
+                      </span>
                     ))}
                   </div>
                 </div>
@@ -325,14 +330,14 @@ export const EntryDetail: React.FC<EntryDetailProps> = ({
               {/* Exploratory Questions */}
               {entry.reflection.questions && entry.reflection.questions.length > 0 && (
                 <div className="space-y-2">
-                  <h4 className="text-xs font-semibold uppercase tracking-wider text-warm-muted">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-app-text-secondary">
                     Explore this
                   </h4>
                   <div className="space-y-2">
                     {entry.reflection.questions.map((q, idx) => (
                       <div
                         key={idx}
-                        className="p-3.5 rounded-2xl bg-warm-card border border-warm-border/60 text-xs sm:text-sm text-warm-text italic leading-relaxed"
+                        className="p-3.5 rounded-xl bg-app-surface-secondary dark:bg-[#26252F] border border-app-border text-xs sm:text-sm text-app-text italic leading-relaxed"
                       >
                         "{q}"
                       </div>
@@ -343,8 +348,8 @@ export const EntryDetail: React.FC<EntryDetailProps> = ({
 
               {/* Suggested Action */}
               {entry.reflection.suggestedAction && (
-                <div className="p-4 rounded-2xl bg-warm-sage-light/60 dark:bg-emerald-950/30 border border-warm-sage/30 text-xs sm:text-sm text-warm-text">
-                  <span className="font-semibold text-warm-sage block mb-1">
+                <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 text-xs sm:text-sm text-app-text">
+                  <span className="font-bold text-emerald-600 dark:text-emerald-400 block mb-1">
                     Gentle suggestion:
                   </span>
                   {entry.reflection.suggestedAction}
@@ -352,12 +357,12 @@ export const EntryDetail: React.FC<EntryDetailProps> = ({
               )}
             </div>
           ) : (
-            <div className="bg-warm-card border border-dashed border-warm-border rounded-3xl p-8 text-center space-y-3">
-              <Sparkles className="w-6 h-6 text-warm-accent mx-auto" />
-              <h4 className="font-serif text-lg font-medium text-warm-text">
+            <div className="bg-white dark:bg-[#201F28] border border-dashed border-app-border rounded-card p-8 text-center space-y-3">
+              <Sparkles className="w-6 h-6 text-[#6C4FF6] mx-auto" />
+              <h4 className="font-sans text-base font-bold text-app-text">
                 Reflect on this memory with AI
               </h4>
-              <p className="text-xs sm:text-sm text-warm-muted max-w-sm mx-auto">
+              <p className="text-xs text-app-text-secondary max-w-sm mx-auto">
                 Generate supportive observations, thematic tags, and gentle questions without any diagnostic claims.
               </p>
               <Button
@@ -382,8 +387,8 @@ export const EntryDetail: React.FC<EntryDetailProps> = ({
         maxWidth="sm"
       >
         <div className="space-y-4 pt-2">
-          <p className="text-xs text-warm-muted leading-relaxed">
-            Are you sure you want to remove <strong className="text-warm-text">"{entry.title || 'Untitled'}"</strong> from your journal?
+          <p className="text-xs text-app-text-secondary leading-relaxed">
+            Are you sure you want to remove <strong className="text-app-text">"{entry.title || 'Untitled'}"</strong> from your journal?
           </p>
           <div className="flex items-center justify-end gap-2 pt-2">
             <Button

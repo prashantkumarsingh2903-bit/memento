@@ -20,8 +20,8 @@ export const MOOD_OPTIONS: MoodOption[] = [
     value: 'okay',
     label: 'Okay',
     emoji: '😐',
-    colorClass: 'text-stone-600 dark:text-stone-300',
-    bgClass: 'bg-stone-50 dark:bg-stone-900 border-stone-200 dark:border-stone-800',
+    colorClass: 'text-slate-600 dark:text-slate-300',
+    bgClass: 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800',
   },
   {
     value: 'low',
@@ -41,8 +41,8 @@ export const MOOD_OPTIONS: MoodOption[] = [
     value: 'tired',
     label: 'Tired',
     emoji: '😴',
-    colorClass: 'text-purple-600 dark:text-purple-400',
-    bgClass: 'bg-purple-50 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800/40',
+    colorClass: 'text-[#6C4FF6] dark:text-[#856DF8]',
+    bgClass: 'bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 border-[#6C4FF6]/30',
   },
 ];
 
@@ -67,9 +67,9 @@ export const MoodSelector: React.FC<MoodSelectorProps> = ({
   className = '',
 }) => {
   const sizeClasses = {
-    sm: 'text-lg p-1.5 min-w-[52px]',
-    md: 'text-xl p-2.5 min-w-[68px]',
-    lg: 'text-2xl p-3 min-w-[80px]',
+    sm: 'text-lg p-1.5 min-w-[50px] rounded-xl',
+    md: 'text-xl p-2.5 min-w-[64px] rounded-xl',
+    lg: 'text-2xl p-3 min-w-[76px] rounded-2xl',
   };
 
   return (
@@ -81,22 +81,22 @@ export const MoodSelector: React.FC<MoodSelectorProps> = ({
             key={item.value}
             type="button"
             onClick={() => onChange(item.value)}
-            className={`flex flex-col items-center justify-center rounded-2xl border transition-all duration-200 cursor-pointer ${
+            className={`flex flex-col items-center justify-center border transition-all duration-150 cursor-pointer ${
               sizeClasses[size]
             } ${
               isSelected
-                ? `${item.bgClass} border-warm-accent ring-2 ring-warm-accent/20 scale-[1.03] shadow-sm`
-                : 'bg-warm-card border-warm-border/80 hover:border-warm-border-strong hover:bg-warm-card-subtle opacity-80 hover:opacity-100'
+                ? 'bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 border-[#6C4FF6] text-[#6C4FF6] dark:text-[#856DF8] ring-2 ring-[#6C4FF6]/25 scale-[1.03] shadow-subtle font-bold'
+                : 'bg-white dark:bg-[#201F28] border-app-border text-app-text-secondary hover:text-app-text hover:border-app-border-strong hover:bg-app-surface-secondary dark:hover:bg-[#26252F]'
             }`}
             title={item.label}
           >
-            <span className="transition-transform duration-150 active:scale-125">
+            <span className="transition-transform duration-150 active:scale-125 select-none">
               {item.emoji}
             </span>
             {showLabels && (
               <span
-                className={`text-[11px] mt-1 font-medium ${
-                  isSelected ? 'text-warm-text font-semibold' : 'text-warm-muted'
+                className={`text-[11px] mt-1 font-semibold ${
+                  isSelected ? 'text-[#6C4FF6] dark:text-[#856DF8]' : 'text-app-text-secondary'
                 }`}
               >
                 {item.label}

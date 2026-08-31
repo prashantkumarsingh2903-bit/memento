@@ -94,7 +94,6 @@ interface QuoteOfTheDayProps {
 }
 
 export const QuoteOfTheDay: React.FC<QuoteOfTheDayProps> = ({ onReflect }) => {
-  // Deterministic daily index based on day of year
   const getDayOfYear = () => {
     const now = new Date();
     const start = new Date(now.getFullYear(), 0, 0);
@@ -127,26 +126,26 @@ export const QuoteOfTheDay: React.FC<QuoteOfTheDayProps> = ({ onReflect }) => {
   };
 
   const categoryColors: Record<MindfulQuote['category'], string> = {
-    Presence: 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800/40',
-    Resilience: 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-800/40',
-    Mindfulness: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/40',
-    Gratitude: 'bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800/40',
-    Wisdom: 'bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-800/40',
-    'Self-Discovery': 'bg-warm-accent-light text-warm-accent border-warm-accent/25',
+    Presence: 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border-indigo-200/60 dark:border-indigo-800/40',
+    Resilience: 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200/60 dark:border-rose-800/40',
+    Mindfulness: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200/60 dark:border-emerald-800/40',
+    Gratitude: 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200/60 dark:border-amber-800/40',
+    Wisdom: 'bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200/60 dark:border-purple-800/40',
+    'Self-Discovery': 'bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 text-[#6C4FF6] dark:text-[#856DF8] border-[#6C4FF6]/25',
   };
 
   return (
-    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-warm-card via-warm-card to-warm-card-subtle border border-warm-border p-6 sm:p-7 shadow-subtle group">
+    <div className="relative overflow-hidden rounded-card bg-white dark:bg-[#201F28] border border-app-border p-6 sm:p-7 shadow-subtle group">
       {/* Subtle quote watermark in background */}
-      <Quote className="absolute -bottom-4 -right-4 w-28 h-28 text-warm-border/30 pointer-events-none select-none" />
+      <Quote className="absolute -bottom-4 -right-4 w-28 h-28 text-app-border/30 pointer-events-none select-none" />
 
       <div className="relative z-10 space-y-4">
         {/* Top bar: Category badge & Actions */}
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-2">
-            <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider bg-warm-accent-light text-warm-accent border border-warm-accent/20">
+            <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 text-[#6C4FF6] dark:text-[#856DF8] border border-[#6C4FF6]/20">
               <Sparkles className="w-3 h-3" />
-              Quote of the Day
+              Daily Spark
             </span>
 
             <span
@@ -161,7 +160,7 @@ export const QuoteOfTheDay: React.FC<QuoteOfTheDayProps> = ({ onReflect }) => {
           <div className="flex items-center gap-1">
             <button
               onClick={handleCopy}
-              className="p-1.5 rounded-xl text-warm-muted hover:text-warm-text hover:bg-warm-card-subtle transition-colors cursor-pointer"
+              className="p-1.5 rounded-xl text-app-text-muted hover:text-app-text hover:bg-app-surface-secondary transition-colors cursor-pointer"
               title="Copy quote"
             >
               {copied ? (
@@ -172,7 +171,7 @@ export const QuoteOfTheDay: React.FC<QuoteOfTheDayProps> = ({ onReflect }) => {
             </button>
             <button
               onClick={handleNextQuote}
-              className="p-1.5 rounded-xl text-warm-muted hover:text-warm-text hover:bg-warm-card-subtle transition-colors cursor-pointer"
+              className="p-1.5 rounded-xl text-app-text-muted hover:text-app-text hover:bg-app-surface-secondary transition-colors cursor-pointer"
               title="New contemplative quote"
             >
               <RefreshCw
@@ -186,21 +185,21 @@ export const QuoteOfTheDay: React.FC<QuoteOfTheDayProps> = ({ onReflect }) => {
 
         {/* Quote Body */}
         <div className="space-y-3 pt-1">
-          <blockquote className="font-serif text-lg sm:text-xl md:text-2xl text-warm-text font-normal leading-relaxed italic">
+          <blockquote className="font-serif text-lg sm:text-xl md:text-2xl text-app-text font-normal leading-relaxed italic">
             "{currentQuote.text}"
           </blockquote>
 
           <div className="flex items-center justify-between flex-wrap gap-3 pt-1">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-full bg-warm-accent-light text-warm-accent font-serif text-xs font-semibold flex items-center justify-center border border-warm-border">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-full bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 text-[#6C4FF6] dark:text-[#856DF8] font-sans text-xs font-bold flex items-center justify-center border border-[#6C4FF6]/20">
                 {currentQuote.author[0]}
               </div>
               <div>
-                <cite className="not-italic text-sm font-semibold text-warm-text block">
+                <cite className="not-italic text-sm font-semibold text-app-text block">
                   {currentQuote.author}
                 </cite>
                 {currentQuote.work && (
-                  <span className="text-[11px] text-warm-muted block">
+                  <span className="text-[11px] text-app-text-muted block">
                     {currentQuote.work}
                   </span>
                 )}
@@ -211,10 +210,10 @@ export const QuoteOfTheDay: React.FC<QuoteOfTheDayProps> = ({ onReflect }) => {
               <button
                 type="button"
                 onClick={() => onReflect(currentQuote)}
-                className="inline-flex items-center gap-1.5 text-xs font-medium text-warm-accent hover:text-warm-accent-hover bg-warm-card border border-warm-border hover:border-warm-accent/40 px-3 py-1.5 rounded-xl shadow-subtle transition-all cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-[#6C4FF6] dark:text-[#856DF8] hover:text-[#5B3FD4] bg-[#F1EEFF]/60 dark:bg-[#6C4FF6]/15 border border-[#6C4FF6]/25 hover:border-[#6C4FF6]/40 px-3.5 py-1.5 rounded-xl shadow-subtle transition-all cursor-pointer"
               >
                 <PenLine className="w-3.5 h-3.5" />
-                <span>Write reflection</span>
+                <span>Reflect on this</span>
               </button>
             )}
           </div>

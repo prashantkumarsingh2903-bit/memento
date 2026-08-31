@@ -46,32 +46,32 @@ export const Modal: React.FC<ModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 animate-fade-in">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-stone-900/40 dark:bg-black/60 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-stone-900/50 dark:bg-black/70 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
       {/* Modal Container */}
       <div
-        className={`relative w-full ${maxWidthStyles[maxWidth]} bg-warm-card border border-warm-border rounded-3xl shadow-elevated overflow-hidden z-10 animate-slide-up`}
+        className={`relative w-full ${maxWidthStyles[maxWidth]} bg-white dark:bg-[#201F28] border border-app-border rounded-modal shadow-workspace overflow-hidden z-10 animate-slide-up`}
       >
         {/* Header */}
         {(title || subtitle) && (
-          <div className="px-6 pt-6 pb-4 flex items-start justify-between border-b border-warm-border/60">
+          <div className="px-6 pt-6 pb-4 flex items-start justify-between border-b border-app-border">
             <div>
               {title && (
-                <h3 className="font-serif text-xl font-medium text-warm-text">
+                <h3 className="font-sans text-lg sm:text-xl font-bold text-app-text">
                   {title}
                 </h3>
               )}
               {subtitle && (
-                <p className="text-xs text-warm-muted mt-1 leading-relaxed">
+                <p className="text-xs text-app-text-secondary mt-1 leading-relaxed">
                   {subtitle}
                 </p>
               )}
             </div>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-full text-warm-muted hover:text-warm-text hover:bg-warm-card-subtle transition-colors -mr-1"
+              className="p-1.5 rounded-full text-app-text-muted hover:text-app-text hover:bg-app-surface-secondary dark:hover:bg-[#26252F] transition-colors -mr-1 cursor-pointer"
               aria-label="Close dialog"
             >
               <X className="w-5 h-5" />

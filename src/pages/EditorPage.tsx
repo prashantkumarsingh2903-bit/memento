@@ -205,15 +205,15 @@ export const EditorPage: React.FC<EditorPageProps> = ({
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8 animate-fade-in">
+    <div className="max-w-3xl mx-auto space-y-6 animate-fade-in">
       {/* Top Header Navigation */}
-      <div className="flex items-center justify-between gap-3 border-b border-warm-border/80 pb-4">
+      <div className="flex items-center justify-between gap-3 border-b border-app-border pb-4">
         <button
           onClick={onCancel}
-          className="flex items-center gap-2 text-sm text-warm-muted hover:text-warm-text transition-colors cursor-pointer"
+          className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-app-text-secondary hover:text-app-text transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to journal</span>
+          <span>Back to Journal</span>
         </button>
 
         <div className="flex items-center gap-2">
@@ -222,7 +222,7 @@ export const EditorPage: React.FC<EditorPageProps> = ({
             size="sm"
             onClick={handleReflectWithAI}
             isLoading={isReflecting}
-            leftIcon={<Sparkles className="w-4 h-4 text-warm-accent" />}
+            leftIcon={<Sparkles className="w-4 h-4 text-[#6C4FF6]" />}
           >
             Reflect with AI
           </Button>
@@ -246,13 +246,13 @@ export const EditorPage: React.FC<EditorPageProps> = ({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Title of this moment..."
-            className="w-full font-serif text-3xl sm:text-4xl font-medium text-warm-text placeholder:text-warm-faint bg-transparent border-none outline-none focus:ring-0 leading-tight"
+            className="w-full font-sans text-2xl sm:text-3xl font-extrabold text-app-text placeholder:text-app-text-muted bg-transparent border-none outline-none focus:ring-0 leading-tight"
           />
         </div>
 
         {/* Mood Selection */}
         <div className="space-y-2">
-          <label className="text-xs font-semibold uppercase tracking-wider text-warm-muted">
+          <label className="text-xs font-bold uppercase tracking-wider text-app-text-secondary">
             How were you feeling?
           </label>
           <MoodSelector
@@ -264,21 +264,21 @@ export const EditorPage: React.FC<EditorPageProps> = ({
 
         {/* Tags Selector */}
         <div className="space-y-2">
-          <label className="text-xs font-semibold uppercase tracking-wider text-warm-muted">
+          <label className="text-xs font-bold uppercase tracking-wider text-app-text-secondary">
             Tags & Context
           </label>
           <div className="flex items-center gap-2 flex-wrap">
             {tags.map((tag) => (
               <span
                 key={tag}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-warm-card border border-warm-border text-xs font-medium text-warm-text shadow-subtle"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 border border-[#6C4FF6]/20 text-xs font-semibold text-[#6C4FF6] dark:text-[#856DF8] shadow-subtle"
               >
-                <Tag className="w-3 h-3 text-warm-faint" />
+                <Tag className="w-3 h-3 text-[#6C4FF6]/60" />
                 <span>#{tag}</span>
                 <button
                   type="button"
                   onClick={() => handleRemoveTag(tag)}
-                  className="p-0.5 text-warm-faint hover:text-rose-500 rounded-full"
+                  className="p-0.5 text-[#6C4FF6]/60 hover:text-rose-500 rounded-full cursor-pointer"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -296,23 +296,23 @@ export const EditorPage: React.FC<EditorPageProps> = ({
                   }
                 }}
                 placeholder="+ Add tag..."
-                className="text-xs bg-warm-card-subtle border border-warm-border rounded-full px-3 py-1 outline-none text-warm-text placeholder:text-warm-faint focus:border-warm-accent"
+                className="text-xs bg-app-surface-secondary dark:bg-[#26252F] border border-app-border rounded-full px-3 py-1 outline-none text-app-text placeholder:text-app-text-muted focus:border-[#6C4FF6]"
               />
             </div>
           </div>
         </div>
 
-        {/* Attached Media Cards (Photos / Audios / Videos) */}
+        {/* Attached Media Cards */}
         {media.length > 0 && (
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-warm-muted">
+            <label className="text-xs font-bold uppercase tracking-wider text-app-text-secondary">
               Attached Media ({media.length})
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {media.map((item) => (
                 <div
                   key={item.id}
-                  className="relative group rounded-2xl overflow-hidden border border-warm-border bg-warm-card aspect-video flex items-center justify-center shadow-subtle"
+                  className="relative group rounded-xl overflow-hidden border border-app-border bg-white dark:bg-[#201F28] aspect-video flex items-center justify-center shadow-subtle"
                 >
                   {item.type === 'image' && (
                     <img
@@ -323,16 +323,16 @@ export const EditorPage: React.FC<EditorPageProps> = ({
                   )}
                   {item.type === 'audio' && (
                     <div className="p-4 text-center">
-                      <Mic className="w-6 h-6 text-rose-500 mx-auto mb-1" />
-                      <p className="text-[11px] font-medium text-warm-text truncate">
+                      <Mic className="w-6 h-6 text-[#6C4FF6] mx-auto mb-1" />
+                      <p className="text-[11px] font-semibold text-app-text truncate">
                         {item.name || 'Voice Note'}
                       </p>
                     </div>
                   )}
                   {item.type === 'video' && (
                     <div className="p-4 text-center">
-                      <Video className="w-6 h-6 text-indigo-500 mx-auto mb-1" />
-                      <p className="text-[11px] font-medium text-warm-text truncate">
+                      <Video className="w-6 h-6 text-[#D95CFF] mx-auto mb-1" />
+                      <p className="text-[11px] font-semibold text-app-text truncate">
                         {item.name || 'Video Note'}
                       </p>
                     </div>
@@ -340,7 +340,7 @@ export const EditorPage: React.FC<EditorPageProps> = ({
 
                   <button
                     onClick={() => handleRemoveMedia(item.id)}
-                    className="absolute top-2 right-2 p-1.5 rounded-full bg-stone-900/70 text-white hover:bg-rose-600 transition-colors opacity-0 group-hover:opacity-100"
+                    className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/70 text-white hover:bg-rose-600 transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
                     title="Remove attachment"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -352,14 +352,14 @@ export const EditorPage: React.FC<EditorPageProps> = ({
         )}
 
         {/* Editor Toolbar & Text Area */}
-        <div className="border border-warm-border rounded-3xl overflow-hidden bg-warm-card shadow-subtle">
+        <div className="border border-app-border rounded-card overflow-hidden bg-white dark:bg-[#201F28] shadow-subtle">
           {/* Formatting Bar */}
-          <div className="flex items-center justify-between px-3 py-2 border-b border-warm-border bg-warm-card-subtle/50 flex-wrap gap-1">
+          <div className="flex items-center justify-between px-3 py-2 border-b border-app-border bg-app-surface-secondary dark:bg-[#26252F] flex-wrap gap-1">
             <div className="flex items-center gap-1">
               <button
                 type="button"
                 onClick={() => applyMarkdown('**', '**')}
-                className="p-1.5 rounded-lg text-warm-muted hover:text-warm-text hover:bg-warm-card transition-colors"
+                className="p-1.5 rounded-lg text-app-text-muted hover:text-app-text hover:bg-white dark:hover:bg-[#201F28] transition-colors cursor-pointer"
                 title="Bold"
               >
                 <Bold className="w-4 h-4" />
@@ -367,7 +367,7 @@ export const EditorPage: React.FC<EditorPageProps> = ({
               <button
                 type="button"
                 onClick={() => applyMarkdown('*', '*')}
-                className="p-1.5 rounded-lg text-warm-muted hover:text-warm-text hover:bg-warm-card transition-colors"
+                className="p-1.5 rounded-lg text-app-text-muted hover:text-app-text hover:bg-white dark:hover:bg-[#201F28] transition-colors cursor-pointer"
                 title="Italic"
               >
                 <Italic className="w-4 h-4" />
@@ -375,7 +375,7 @@ export const EditorPage: React.FC<EditorPageProps> = ({
               <button
                 type="button"
                 onClick={() => applyMarkdown('## ')}
-                className="p-1.5 rounded-lg text-warm-muted hover:text-warm-text hover:bg-warm-card transition-colors"
+                className="p-1.5 rounded-lg text-app-text-muted hover:text-app-text hover:bg-white dark:hover:bg-[#201F28] transition-colors cursor-pointer"
                 title="Heading"
               >
                 <Heading2 className="w-4 h-4" />
@@ -383,7 +383,7 @@ export const EditorPage: React.FC<EditorPageProps> = ({
               <button
                 type="button"
                 onClick={() => applyMarkdown('- ')}
-                className="p-1.5 rounded-lg text-warm-muted hover:text-warm-text hover:bg-warm-card transition-colors"
+                className="p-1.5 rounded-lg text-app-text-muted hover:text-app-text hover:bg-white dark:hover:bg-[#201F28] transition-colors cursor-pointer"
                 title="Bullet list"
               >
                 <List className="w-4 h-4" />
@@ -391,7 +391,7 @@ export const EditorPage: React.FC<EditorPageProps> = ({
               <button
                 type="button"
                 onClick={() => applyMarkdown('> ')}
-                className="p-1.5 rounded-lg text-warm-muted hover:text-warm-text hover:bg-warm-card transition-colors"
+                className="p-1.5 rounded-lg text-app-text-muted hover:text-app-text hover:bg-white dark:hover:bg-[#201F28] transition-colors cursor-pointer"
                 title="Quote"
               >
                 <Quote className="w-4 h-4" />
@@ -410,7 +410,7 @@ export const EditorPage: React.FC<EditorPageProps> = ({
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-1 px-2.5 py-1 text-xs text-warm-muted hover:text-warm-text hover:bg-warm-card rounded-lg transition-colors"
+                className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-app-text-secondary hover:text-app-text hover:bg-white dark:hover:bg-[#201F28] rounded-lg transition-colors cursor-pointer"
                 title="Add Photos"
               >
                 <ImageIcon className="w-3.5 h-3.5" />
@@ -420,7 +420,7 @@ export const EditorPage: React.FC<EditorPageProps> = ({
               <button
                 type="button"
                 onClick={() => setShowPreview(!showPreview)}
-                className="flex items-center gap-1 px-2.5 py-1 text-xs text-warm-muted hover:text-warm-text hover:bg-warm-card rounded-lg transition-colors"
+                className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-app-text-secondary hover:text-app-text hover:bg-white dark:hover:bg-[#201F28] rounded-lg transition-colors cursor-pointer"
               >
                 {showPreview ? <Edit2 className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                 <span>{showPreview ? 'Edit' : 'Preview'}</span>
@@ -430,8 +430,8 @@ export const EditorPage: React.FC<EditorPageProps> = ({
 
           {/* Writing Surface */}
           {showPreview ? (
-            <div className="p-6 prose dark:prose-invert max-w-none min-h-[280px] font-serif text-warm-text leading-relaxed whitespace-pre-wrap">
-              {text || <span className="text-warm-faint italic">Nothing written yet.</span>}
+            <div className="p-6 prose dark:prose-invert max-w-none min-h-[280px] font-sans text-app-text leading-relaxed whitespace-pre-wrap">
+              {text || <span className="text-app-text-muted italic">Nothing written yet.</span>}
             </div>
           ) : (
             <textarea
@@ -439,23 +439,23 @@ export const EditorPage: React.FC<EditorPageProps> = ({
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="What thoughts are gently presenting themselves today? Write freely..."
-              className="w-full min-h-[280px] p-6 bg-transparent text-warm-text placeholder:text-warm-faint outline-none font-serif text-base sm:text-lg leading-relaxed resize-none"
+              className="w-full min-h-[280px] p-6 bg-transparent text-app-text placeholder:text-app-text-muted outline-none font-sans text-base sm:text-lg leading-relaxed resize-none"
             />
           )}
         </div>
 
-        {/* Optional Transcript Section (if voice was recorded) */}
+        {/* Optional Transcript Section */}
         {transcript && (
-          <div className="bg-warm-card-subtle border border-warm-border rounded-3xl p-5 space-y-2">
+          <div className="bg-app-surface-secondary dark:bg-[#26252F] border border-app-border rounded-card p-5 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wider text-warm-muted flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-rose-500" />
+              <span className="text-xs font-bold uppercase tracking-wider text-app-text-secondary flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-[#6C4FF6]" />
                 Voice Transcript
               </span>
               <button
                 type="button"
                 onClick={() => setTranscript('')}
-                className="text-[11px] text-warm-muted hover:text-rose-500"
+                className="text-[11px] text-app-text-muted hover:text-rose-500 cursor-pointer"
               >
                 Clear
               </button>
@@ -463,7 +463,7 @@ export const EditorPage: React.FC<EditorPageProps> = ({
             <textarea
               value={transcript}
               onChange={(e) => setTranscript(e.target.value)}
-              className="w-full text-sm text-warm-text italic leading-relaxed bg-transparent outline-none resize-none"
+              className="w-full text-sm text-app-text italic leading-relaxed bg-transparent outline-none resize-none"
               rows={3}
             />
           </div>
@@ -471,23 +471,23 @@ export const EditorPage: React.FC<EditorPageProps> = ({
 
         {/* Generated AI Reflection Preview */}
         {reflection && (
-          <div className="bg-gradient-to-br from-warm-card to-warm-accent-light/30 border border-warm-accent/30 rounded-3xl p-6 shadow-subtle space-y-4 animate-slide-up">
+          <div className="bg-white dark:bg-[#201F28] border border-[#6C4FF6]/30 rounded-card p-6 shadow-subtle space-y-4 animate-slide-up">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-warm-accent" />
-                <h4 className="font-serif text-lg font-medium text-warm-text">
+                <Sparkles className="w-4 h-4 text-[#6C4FF6]" />
+                <h4 className="font-sans text-base font-bold text-app-text">
                   AI Reflection
                 </h4>
               </div>
-              <span className="text-[11px] text-warm-muted">Non-prescriptive</span>
+              <span className="text-[11px] text-app-text-muted">Non-prescriptive</span>
             </div>
 
             {reflection.summary && (
               <div>
-                <h5 className="text-xs font-semibold text-warm-muted uppercase tracking-wider mb-1">
+                <h5 className="text-xs font-bold text-app-text-secondary uppercase tracking-wider mb-1">
                   What I noticed
                 </h5>
-                <p className="text-sm text-warm-text leading-relaxed">
+                <p className="text-xs sm:text-sm text-app-text leading-relaxed">
                   {reflection.summary}
                 </p>
               </div>
@@ -495,14 +495,14 @@ export const EditorPage: React.FC<EditorPageProps> = ({
 
             {reflection.themes.length > 0 && (
               <div>
-                <h5 className="text-xs font-semibold text-warm-muted uppercase tracking-wider mb-1.5">
+                <h5 className="text-xs font-bold text-app-text-secondary uppercase tracking-wider mb-1.5">
                   Possible Themes
                 </h5>
                 <div className="flex items-center gap-1.5 flex-wrap">
                   {reflection.themes.map((t) => (
                     <span
                       key={t}
-                      className="text-xs px-2.5 py-0.5 rounded-full bg-warm-card border border-warm-border font-medium text-warm-accent"
+                      className="text-xs px-2.5 py-0.5 rounded-full bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 border border-[#6C4FF6]/20 font-semibold text-[#6C4FF6] dark:text-[#856DF8]"
                     >
                       {t}
                     </span>
@@ -513,16 +513,16 @@ export const EditorPage: React.FC<EditorPageProps> = ({
 
             {reflection.questions.length > 0 && (
               <div>
-                <h5 className="text-xs font-semibold text-warm-muted uppercase tracking-wider mb-1">
+                <h5 className="text-xs font-bold text-app-text-secondary uppercase tracking-wider mb-1">
                   Explore this
                 </h5>
                 <ul className="space-y-1.5">
                   {reflection.questions.map((q, idx) => (
                     <li
                       key={idx}
-                      className="text-xs sm:text-sm text-warm-muted italic flex items-start gap-2"
+                      className="text-xs sm:text-sm text-app-text-secondary italic flex items-start gap-2"
                     >
-                      <span className="text-warm-accent">›</span>
+                      <span className="text-[#6C4FF6]">›</span>
                       <span>"{q}"</span>
                     </li>
                   ))}

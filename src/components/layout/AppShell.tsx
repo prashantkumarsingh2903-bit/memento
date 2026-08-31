@@ -40,8 +40,8 @@ export const AppShell: React.FC<AppShellProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-warm-bg text-warm-text flex flex-col md:flex-row transition-colors duration-200">
-      {/* Desktop Sidebar */}
+    <div className="min-h-screen bg-app-bg text-app-text flex flex-col md:flex-row transition-colors duration-200 antialiased selection:bg-[#6C4FF6]/20 selection:text-[#6C4FF6]">
+      {/* Desktop Sidebar (Fixed / Sticky) */}
       <Sidebar
         activeView={activeView}
         onNavigate={onNavigate}
@@ -51,17 +51,21 @@ export const AppShell: React.FC<AppShellProps> = ({
         onThemeChange={onThemeChange}
       />
 
-      {/* Main View Area */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen pb-20 md:pb-8">
+      {/* Main View Area with Floating White Workspace Card */}
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen pb-20 md:pb-4 md:py-3 md:pr-4 md:pl-1">
+        {/* Header bar */}
         <Header
           activeView={activeView}
           onNavigate={onNavigate}
           onQuickCapture={handleQuickCapture}
         />
 
-        <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-8 py-6 sm:py-8 animate-fade-in">
-          {children}
-        </main>
+        {/* Floating White Main Workspace Container */}
+        <div className="flex-1 w-full bg-white dark:bg-[#201F28] rounded-none md:rounded-[28px] shadow-none md:shadow-workspace border-0 md:border md:border-app-border overflow-hidden flex flex-col transition-all duration-200">
+          <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-8 lg:px-10 py-6 sm:py-8 lg:py-10 animate-fade-in">
+            {children}
+          </main>
+        </div>
       </div>
 
       {/* Mobile Bottom Navigation */}

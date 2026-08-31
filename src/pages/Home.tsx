@@ -7,12 +7,14 @@ import {
   ArrowRight,
   BookOpen,
   Plus,
+  Sparkles,
 } from 'lucide-react';
 import type { EntryType, JournalEntry, Mood, UserProfile } from '../types';
 import { ReflectionPromptCard } from '../components/journal/ReflectionPromptCard';
 import { JournalCard } from '../components/journal/JournalCard';
 import { Button } from '../components/common/Button';
 import { QuoteOfTheDay, type MindfulQuote } from '../components/home/QuoteOfTheDay';
+import { HomeAnalytics } from '../components/home/HomeAnalytics';
 
 interface HomePageProps {
   entries: JournalEntry[];
@@ -48,7 +50,7 @@ export const Home: React.FC<HomePageProps> = ({
   };
 
   const recentEntries = entries.slice(0, 4);
-  const displayName = profile.name?.trim() ? profile.name.trim().split(' ')[0] : 'Friend';
+  const displayName = profile.name?.trim() ? profile.name.trim().split(' ')[0] : 'Prashant';
   const initials = profile.name
     ? profile.name
         .split(' ')
@@ -59,118 +61,123 @@ export const Home: React.FC<HomePageProps> = ({
     : 'ME';
 
   return (
-    <div className="space-y-10 max-w-4xl mx-auto animate-fade-in">
-      {/* 1. Welcoming Hero */}
-      <section className="space-y-6">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-warm-text">
-              {getGreeting()},{' '}
-              <span className="italic font-normal">{displayName}</span>.
-            </h1>
-            <p className="text-sm sm:text-base text-warm-muted mt-2">
-              {profile.bio || 'Take a breath and welcome this moment.'}
-            </p>
+    <div className="space-y-8 animate-fade-in">
+      {/* 1. Header & Welcome Hero */}
+      <section className="flex items-center justify-between gap-4">
+        <div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F1EEFF] dark:bg-[#6C4FF6]/18 text-[#6C4FF6] dark:text-[#856DF8] text-xs font-semibold mb-2 border border-[#6C4FF6]/20">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>AI Multimodal Journal</span>
           </div>
-
-          {/* Hero Avatar pill */}
-          <div className="shrink-0 hidden sm:block">
-            {profile.avatarUrl ? (
-              <img
-                src={profile.avatarUrl}
-                alt={profile.name}
-                className="w-16 h-16 rounded-full object-cover border-2 border-warm-border shadow-soft"
-              />
-            ) : (
-              <div className="w-16 h-16 rounded-full bg-warm-accent-light text-warm-accent font-serif text-xl font-semibold flex items-center justify-center border-2 border-warm-border shadow-soft">
-                {initials}
-              </div>
-            )}
-          </div>
+          <h1 className="font-sans text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-app-text">
+            {getGreeting()},{' '}
+            <span className="text-[#6C4FF6] dark:text-[#856DF8]">{displayName}</span>
+          </h1>
+          <p className="text-xs sm:text-sm text-app-text-secondary mt-1 max-w-xl">
+            {profile.bio || 'Your mindful sanctuary for deep thoughts, speech memos, and personal growth.'}
+          </p>
         </div>
 
-        {/* Quote of the Day (Replaces Mood Assessment space) */}
-        <QuoteOfTheDay onReflect={handleReflectOnQuote} />
+        {/* Hero Avatar */}
+        <div className="shrink-0 hidden sm:block">
+          {profile.avatarUrl ? (
+            <img
+              src={profile.avatarUrl}
+              alt={profile.name}
+              className="w-14 h-14 rounded-2xl object-cover border-2 border-app-border shadow-soft"
+            />
+          ) : (
+            <div className="w-14 h-14 rounded-2xl bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 text-[#6C4FF6] dark:text-[#856DF8] font-bold text-lg flex items-center justify-center border border-[#6C4FF6]/20 shadow-soft">
+              {initials}
+            </div>
+          )}
+        </div>
       </section>
 
-      {/* 2. Primary CTA: Capture a moment */}
-      <section className="space-y-3.5">
+      {/* 2. Featured Capture Hero Cards */}
+      <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="font-serif text-xl sm:text-2xl font-medium text-warm-text">
-            Capture a moment
+          <h2 className="font-sans text-base sm:text-lg font-bold text-app-text">
+            Quick Capture
           </h2>
-          <span className="text-xs text-warm-muted">Choose your medium</span>
+          <span className="text-xs text-app-text-muted">Select input medium</span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-          {/* Speak */}
+          {/* Speak / Voice */}
           <button
             onClick={() => onStartCapture('voice')}
-            className="p-4 sm:p-5 rounded-3xl bg-warm-card border border-warm-border hover:border-warm-border-strong hover:shadow-soft hover:-translate-y-0.5 transition-all text-left flex flex-col justify-between group cursor-pointer"
+            className="p-4 sm:p-5 rounded-card bg-white dark:bg-[#201F28] border border-app-border hover:border-[#6C4FF6]/40 hover:shadow-soft hover:-translate-y-0.5 transition-all text-left flex flex-col justify-between group cursor-pointer"
           >
-            <div className="p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200/50 dark:border-rose-800/40 w-fit mb-4 group-hover:scale-105 transition-transform">
+            <div className="p-3 rounded-xl bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 text-[#6C4FF6] dark:text-[#856DF8] border border-[#6C4FF6]/20 w-fit mb-4 group-hover:scale-105 transition-transform">
               <Mic className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-serif text-lg font-medium text-warm-text group-hover:text-warm-accent transition-colors">
+              <h3 className="font-sans text-sm sm:text-base font-bold text-app-text group-hover:text-[#6C4FF6] dark:group-hover:text-[#856DF8] transition-colors">
                 Speak
               </h3>
-              <p className="text-xs text-warm-muted mt-0.5">Voice journal</p>
+              <p className="text-[11px] text-app-text-secondary mt-0.5">Voice journal</p>
             </div>
           </button>
 
-          {/* Write */}
+          {/* Write / Text */}
           <button
             onClick={() => onStartCapture('text')}
-            className="p-4 sm:p-5 rounded-3xl bg-warm-card border border-warm-border hover:border-warm-border-strong hover:shadow-soft hover:-translate-y-0.5 transition-all text-left flex flex-col justify-between group cursor-pointer"
+            className="p-4 sm:p-5 rounded-card bg-white dark:bg-[#201F28] border border-app-border hover:border-cyan-400/40 hover:shadow-soft hover:-translate-y-0.5 transition-all text-left flex flex-col justify-between group cursor-pointer"
           >
-            <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200/50 dark:border-amber-800/40 w-fit mb-4 group-hover:scale-105 transition-transform">
+            <div className="p-3 rounded-xl bg-cyan-50 dark:bg-cyan-950/40 text-cyan-600 dark:text-cyan-400 border border-cyan-200/50 dark:border-cyan-800/40 w-fit mb-4 group-hover:scale-105 transition-transform">
               <PenLine className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-serif text-lg font-medium text-warm-text group-hover:text-warm-accent transition-colors">
+              <h3 className="font-sans text-sm sm:text-base font-bold text-app-text group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
                 Write
               </h3>
-              <p className="text-xs text-warm-muted mt-0.5">Text journal</p>
+              <p className="text-[11px] text-app-text-secondary mt-0.5">Markdown note</p>
             </div>
           </button>
 
-          {/* Record */}
+          {/* Record / Video */}
           <button
             onClick={() => onStartCapture('video')}
-            className="p-4 sm:p-5 rounded-3xl bg-warm-card border border-warm-border hover:border-warm-border-strong hover:shadow-soft hover:-translate-y-0.5 transition-all text-left flex flex-col justify-between group cursor-pointer"
+            className="p-4 sm:p-5 rounded-card bg-white dark:bg-[#201F28] border border-app-border hover:border-fuchsia-400/40 hover:shadow-soft hover:-translate-y-0.5 transition-all text-left flex flex-col justify-between group cursor-pointer"
           >
-            <div className="p-3 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 border border-indigo-200/50 dark:border-indigo-800/40 w-fit mb-4 group-hover:scale-105 transition-transform">
+            <div className="p-3 rounded-xl bg-fuchsia-50 dark:bg-fuchsia-950/40 text-fuchsia-600 dark:text-fuchsia-400 border border-fuchsia-200/50 dark:border-fuchsia-800/40 w-fit mb-4 group-hover:scale-105 transition-transform">
               <Video className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-serif text-lg font-medium text-warm-text group-hover:text-warm-accent transition-colors">
+              <h3 className="font-sans text-sm sm:text-base font-bold text-app-text group-hover:text-fuchsia-600 dark:group-hover:text-fuchsia-400 transition-colors">
                 Record
               </h3>
-              <p className="text-xs text-warm-muted mt-0.5">Video journal</p>
+              <p className="text-[11px] text-app-text-secondary mt-0.5">Video memory</p>
             </div>
           </button>
 
           {/* Photo */}
           <button
             onClick={() => onStartCapture('photo')}
-            className="p-4 sm:p-5 rounded-3xl bg-warm-card border border-warm-border hover:border-warm-border-strong hover:shadow-soft hover:-translate-y-0.5 transition-all text-left flex flex-col justify-between group cursor-pointer"
+            className="p-4 sm:p-5 rounded-card bg-white dark:bg-[#201F28] border border-app-border hover:border-emerald-400/40 hover:shadow-soft hover:-translate-y-0.5 transition-all text-left flex flex-col justify-between group cursor-pointer"
           >
-            <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/40 w-fit mb-4 group-hover:scale-105 transition-transform">
+            <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/40 w-fit mb-4 group-hover:scale-105 transition-transform">
               <Camera className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-serif text-lg font-medium text-warm-text group-hover:text-warm-accent transition-colors">
+              <h3 className="font-sans text-sm sm:text-base font-bold text-app-text group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                 Photo
               </h3>
-              <p className="text-xs text-warm-muted mt-0.5">Add photo</p>
+              <p className="text-[11px] text-app-text-secondary mt-0.5">Visual memory</p>
             </div>
           </button>
         </div>
       </section>
 
-      {/* 3. Today's Reflection Prompt */}
+      {/* 3. Analytics & Personal Insights Metrics */}
       <section>
+        <HomeAnalytics entries={entries} />
+      </section>
+
+      {/* 4. Quote of the Day & AI Prompt */}
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <QuoteOfTheDay onReflect={handleReflectOnQuote} />
         <ReflectionPromptCard
           onStartWritingWithPrompt={(promptText) =>
             onStartCapture('text', promptText)
@@ -178,20 +185,20 @@ export const Home: React.FC<HomePageProps> = ({
         />
       </section>
 
-      {/* 4. Recent Memories */}
+      {/* 5. Recent Memories */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="font-serif text-xl sm:text-2xl font-medium text-warm-text">
-              Recent memories
+            <h2 className="font-sans text-base sm:text-lg font-bold text-app-text">
+              Recent Memories
             </h2>
-            <p className="text-xs text-warm-muted">Your latest reflections</p>
+            <p className="text-xs text-app-text-secondary">Your latest thoughts and reflections</p>
           </div>
 
           {entries.length > 4 && (
             <button
               onClick={onNavigateToJournal}
-              className="flex items-center gap-1 text-xs font-medium text-warm-accent hover:text-warm-accent-hover transition-colors cursor-pointer"
+              className="flex items-center gap-1 text-xs font-semibold text-[#6C4FF6] dark:text-[#856DF8] hover:text-[#5B3FD4] transition-colors cursor-pointer"
             >
               <span>View all ({entries.length})</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -200,16 +207,16 @@ export const Home: React.FC<HomePageProps> = ({
         </div>
 
         {recentEntries.length === 0 ? (
-          <div className="bg-warm-card border border-warm-border rounded-3xl p-10 text-center space-y-4">
-            <div className="w-12 h-12 rounded-full bg-warm-accent-light text-warm-accent flex items-center justify-center mx-auto">
+          <div className="bg-white dark:bg-[#201F28] border border-app-border rounded-card p-10 text-center space-y-4 shadow-subtle">
+            <div className="w-12 h-12 rounded-2xl bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 text-[#6C4FF6] dark:text-[#856DF8] flex items-center justify-center mx-auto">
               <BookOpen className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="font-serif text-xl font-medium text-warm-text">
-                Your story starts here
+              <h3 className="font-sans text-lg font-bold text-app-text">
+                Your sanctuary starts here
               </h3>
-              <p className="text-xs sm:text-sm text-warm-muted max-w-sm mx-auto mt-1">
-                Capture your first thought, voice memo, or video memory today.
+              <p className="text-xs sm:text-sm text-app-text-secondary max-w-sm mx-auto mt-1">
+                Capture your first thought, voice memo, or video reflection today.
               </p>
             </div>
             <Button
