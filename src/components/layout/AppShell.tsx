@@ -46,6 +46,7 @@ export const AppShell: React.FC<AppShellProps> = ({
         activeView={activeView}
         onNavigate={onNavigate}
         onQuickCapture={handleQuickCapture}
+        onStartCapture={onStartCapture}
         profile={profile}
         theme={theme}
         onThemeChange={onThemeChange}

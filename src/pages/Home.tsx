@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Mic,
   PenLine,
@@ -8,6 +8,9 @@ import {
   BookOpen,
   Plus,
   Sparkles,
+  BarChart3,
+  Layers,
+  FileSpreadsheet,
 } from 'lucide-react';
 import type { EntryType, JournalEntry, Mood, UserProfile } from '../types';
 import { ReflectionPromptCard } from '../components/journal/ReflectionPromptCard';
@@ -37,6 +40,8 @@ export const Home: React.FC<HomePageProps> = ({
   onToggleFavorite,
   onNavigateToJournal,
 }) => {
+  const [activeCategory, setActiveCategory] = useState<'all' | 'input' | 'report'>('all');
+
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good morning';
@@ -99,152 +104,279 @@ export const Home: React.FC<HomePageProps> = ({
         <QuoteOfTheDay onReflect={handleReflectOnQuote} />
       </section>
 
-      {/* 3. Featured Capture Hero Cards */}
-      <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="font-sans text-base sm:text-lg font-bold text-app-text">
-            Quick Capture
-          </h2>
-          <span className="text-xs text-app-text-muted">Select input medium</span>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-          {/* Speak / Voice */}
+      {/* Category Filter Tabs: All / Input Hub / Report Hub */}
+      <div className="flex items-center justify-between gap-3 border-b border-app-border pb-3 flex-wrap">
+        <div className="inline-flex p-1 rounded-xl bg-app-surface-secondary dark:bg-[#26252F] border border-app-border">
           <button
-            onClick={() => onStartCapture('voice')}
-            className="p-4 sm:p-5 rounded-card bg-white dark:bg-[#201F28] border border-app-border hover:border-[#6C4FF6]/40 hover:shadow-soft hover:-translate-y-0.5 transition-all text-left flex flex-col justify-between group cursor-pointer"
+            onClick={() => setActiveCategory('all')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
+              activeCategory === 'all'
+                ? 'bg-white dark:bg-[#201F28] text-[#6C4FF6] dark:text-[#856DF8] shadow-subtle'
+                : 'text-app-text-secondary hover:text-app-text'
+            }`}
           >
-            <div className="p-3 rounded-xl bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 text-[#6C4FF6] dark:text-[#856DF8] border border-[#6C4FF6]/20 w-fit mb-4 group-hover:scale-105 transition-transform">
-              <Mic className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="font-sans text-sm sm:text-base font-bold text-app-text group-hover:text-[#6C4FF6] dark:group-hover:text-[#856DF8] transition-colors">
-                Speak
-              </h3>
-              <p className="text-[11px] text-app-text-secondary mt-0.5">Voice journal</p>
-            </div>
+            <Layers className="w-3.5 h-3.5" />
+            <span>Complete Overview</span>
           </button>
-
-          {/* Write / Text */}
           <button
-            onClick={() => onStartCapture('text')}
-            className="p-4 sm:p-5 rounded-card bg-white dark:bg-[#201F28] border border-app-border hover:border-cyan-400/40 hover:shadow-soft hover:-translate-y-0.5 transition-all text-left flex flex-col justify-between group cursor-pointer"
+            onClick={() => setActiveCategory('input')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
+              activeCategory === 'input'
+                ? 'bg-white dark:bg-[#201F28] text-[#6C4FF6] dark:text-[#856DF8] shadow-subtle'
+                : 'text-app-text-secondary hover:text-app-text'
+            }`}
           >
-            <div className="p-3 rounded-xl bg-cyan-50 dark:bg-cyan-950/40 text-cyan-600 dark:text-cyan-400 border border-cyan-200/50 dark:border-cyan-800/40 w-fit mb-4 group-hover:scale-105 transition-transform">
-              <PenLine className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="font-sans text-sm sm:text-base font-bold text-app-text group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
-                Write
-              </h3>
-              <p className="text-[11px] text-app-text-secondary mt-0.5">Markdown note</p>
-            </div>
+            <PenLine className="w-3.5 h-3.5" />
+            <span>Input & Capture Hub</span>
           </button>
-
-          {/* Record / Video */}
           <button
-            onClick={() => onStartCapture('video')}
-            className="p-4 sm:p-5 rounded-card bg-white dark:bg-[#201F28] border border-app-border hover:border-fuchsia-400/40 hover:shadow-soft hover:-translate-y-0.5 transition-all text-left flex flex-col justify-between group cursor-pointer"
+            onClick={() => setActiveCategory('report')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
+              activeCategory === 'report'
+                ? 'bg-white dark:bg-[#201F28] text-[#6C4FF6] dark:text-[#856DF8] shadow-subtle'
+                : 'text-app-text-secondary hover:text-app-text'
+            }`}
           >
-            <div className="p-3 rounded-xl bg-fuchsia-50 dark:bg-fuchsia-950/40 text-fuchsia-600 dark:text-fuchsia-400 border border-fuchsia-200/50 dark:border-fuchsia-800/40 w-fit mb-4 group-hover:scale-105 transition-transform">
-              <Video className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="font-sans text-sm sm:text-base font-bold text-app-text group-hover:text-fuchsia-600 dark:group-hover:text-fuchsia-400 transition-colors">
-                Record
-              </h3>
-              <p className="text-[11px] text-app-text-secondary mt-0.5">Video memory</p>
-            </div>
-          </button>
-
-          {/* Photo */}
-          <button
-            onClick={() => onStartCapture('photo')}
-            className="p-4 sm:p-5 rounded-card bg-white dark:bg-[#201F28] border border-app-border hover:border-emerald-400/40 hover:shadow-soft hover:-translate-y-0.5 transition-all text-left flex flex-col justify-between group cursor-pointer"
-          >
-            <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/40 w-fit mb-4 group-hover:scale-105 transition-transform">
-              <Camera className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="font-sans text-sm sm:text-base font-bold text-app-text group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                Photo
-              </h3>
-              <p className="text-[11px] text-app-text-secondary mt-0.5">Visual memory</p>
-            </div>
+            <BarChart3 className="w-3.5 h-3.5" />
+            <span>Reports & Analytics Hub</span>
           </button>
         </div>
-      </section>
 
-      {/* 4. Analytics & Personal Insights Metrics */}
-      <section>
-        <HomeAnalytics entries={entries} />
-      </section>
-
-      {/* 5. AI Reflection Prompt */}
-      <section>
-        <ReflectionPromptCard
-          onStartWritingWithPrompt={(promptText) =>
-            onStartCapture('text', promptText)
-          }
-        />
-      </section>
-
-      {/* 6. Recent Memories */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="font-sans text-base sm:text-lg font-bold text-app-text">
-              Recent Memories
-            </h2>
-            <p className="text-xs text-app-text-secondary">Your latest thoughts and reflections</p>
-          </div>
-
-          {entries.length > 4 && (
-            <button
-              onClick={onNavigateToJournal}
-              className="flex items-center gap-1 text-xs font-semibold text-[#6C4FF6] dark:text-[#856DF8] hover:text-[#5B3FD4] transition-colors cursor-pointer"
-            >
-              <span>View all ({entries.length})</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          )}
+        <div className="text-xs text-app-text-muted hidden sm:block">
+          {activeCategory === 'input' && 'Displaying input modalities & guided writing'}
+          {activeCategory === 'report' && 'Displaying automated personal reports & insights'}
+          {activeCategory === 'all' && 'Displaying all input & reporting subsystems'}
         </div>
+      </div>
 
-        {recentEntries.length === 0 ? (
-          <div className="bg-white dark:bg-[#201F28] border border-app-border rounded-card p-10 text-center space-y-4 shadow-subtle">
-            <div className="w-12 h-12 rounded-2xl bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 text-[#6C4FF6] dark:text-[#856DF8] flex items-center justify-center mx-auto">
-              <BookOpen className="w-6 h-6" />
+      {/* ========================================================================= */}
+      {/* CATEGORY 1: INPUT PART (Creation & Capture Studio)                         */}
+      {/* ========================================================================= */}
+      {(activeCategory === 'all' || activeCategory === 'input') && (
+        <section className="space-y-4 p-5 sm:p-6 rounded-2xl bg-app-surface-secondary/40 dark:bg-[#26252F]/40 border border-app-border">
+          {/* Section Header with Category Badge */}
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2.5">
+              <div className="p-1.5 rounded-xl bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 text-[#6C4FF6] dark:text-[#856DF8] border border-[#6C4FF6]/20">
+                <PenLine className="w-4 h-4" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="font-sans text-base sm:text-lg font-bold text-app-text">
+                    Input & Capture Hub
+                  </h2>
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-[#6C4FF6] dark:text-[#856DF8] bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 px-2 py-0.5 rounded-full border border-[#6C4FF6]/20">
+                    Input System
+                  </span>
+                </div>
+                <p className="text-xs text-app-text-secondary mt-0.5">
+                  Select an input medium to express your feelings and document your day
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-sans text-lg font-bold text-app-text">
-                Your sanctuary starts here
-              </h3>
-              <p className="text-xs sm:text-sm text-app-text-secondary max-w-sm mx-auto mt-1">
-                Capture your first thought, voice memo, or video reflection today.
-              </p>
-            </div>
+
             <Button
+              size="sm"
+              variant="outline"
               onClick={() => onStartCapture('text')}
-              leftIcon={<Plus className="w-4 h-4" />}
+              leftIcon={<Plus className="w-3.5 h-3.5" />}
             >
-              Start journaling
+              New Note
             </Button>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {recentEntries.map((entry) => (
-              <JournalCard
-                key={entry.id}
-                entry={entry}
-                onOpen={onOpenEntry}
-                onEdit={onEditEntry}
-                onDelete={onDeleteEntry}
-                onToggleFavorite={onToggleFavorite}
-              />
-            ))}
+
+          {/* 4 Capture Modality Cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+            {/* Speak / Voice */}
+            <button
+              onClick={() => onStartCapture('voice')}
+              className="p-4 sm:p-5 rounded-card bg-white dark:bg-[#201F28] border border-app-border hover:border-[#6C4FF6]/40 hover:shadow-soft hover:-translate-y-0.5 transition-all text-left flex flex-col justify-between group cursor-pointer"
+            >
+              <div className="p-3 rounded-xl bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 text-[#6C4FF6] dark:text-[#856DF8] border border-[#6C4FF6]/20 w-fit mb-4 group-hover:scale-105 transition-transform">
+                <Mic className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center justify-between">
+                  <h3 className="font-sans text-sm sm:text-base font-bold text-app-text group-hover:text-[#6C4FF6] dark:group-hover:text-[#856DF8] transition-colors">
+                    Speak
+                  </h3>
+                  <span className="text-[9px] font-semibold text-[#6C4FF6] uppercase">Audio</span>
+                </div>
+                <p className="text-[11px] text-app-text-secondary mt-0.5">Live STT transcript</p>
+              </div>
+            </button>
+
+            {/* Write / Text */}
+            <button
+              onClick={() => onStartCapture('text')}
+              className="p-4 sm:p-5 rounded-card bg-white dark:bg-[#201F28] border border-app-border hover:border-cyan-400/40 hover:shadow-soft hover:-translate-y-0.5 transition-all text-left flex flex-col justify-between group cursor-pointer"
+            >
+              <div className="p-3 rounded-xl bg-cyan-50 dark:bg-cyan-950/40 text-cyan-600 dark:text-cyan-400 border border-cyan-200/50 dark:border-cyan-800/40 w-fit mb-4 group-hover:scale-105 transition-transform">
+                <PenLine className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center justify-between">
+                  <h3 className="font-sans text-sm sm:text-base font-bold text-app-text group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                    Write
+                  </h3>
+                  <span className="text-[9px] font-semibold text-cyan-600 uppercase">Text</span>
+                </div>
+                <p className="text-[11px] text-app-text-secondary mt-0.5">Markdown editor</p>
+              </div>
+            </button>
+
+            {/* Record / Video */}
+            <button
+              onClick={() => onStartCapture('video')}
+              className="p-4 sm:p-5 rounded-card bg-white dark:bg-[#201F28] border border-app-border hover:border-fuchsia-400/40 hover:shadow-soft hover:-translate-y-0.5 transition-all text-left flex flex-col justify-between group cursor-pointer"
+            >
+              <div className="p-3 rounded-xl bg-fuchsia-50 dark:bg-fuchsia-950/40 text-fuchsia-600 dark:text-fuchsia-400 border border-fuchsia-200/50 dark:border-fuchsia-800/40 w-fit mb-4 group-hover:scale-105 transition-transform">
+                <Video className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center justify-between">
+                  <h3 className="font-sans text-sm sm:text-base font-bold text-app-text group-hover:text-fuchsia-600 dark:group-hover:text-fuchsia-400 transition-colors">
+                    Record
+                  </h3>
+                  <span className="text-[9px] font-semibold text-fuchsia-600 uppercase">Video</span>
+                </div>
+                <p className="text-[11px] text-app-text-secondary mt-0.5">Webcam viewfinder</p>
+              </div>
+            </button>
+
+            {/* Photo */}
+            <button
+              onClick={() => onStartCapture('photo')}
+              className="p-4 sm:p-5 rounded-card bg-white dark:bg-[#201F28] border border-app-border hover:border-emerald-400/40 hover:shadow-soft hover:-translate-y-0.5 transition-all text-left flex flex-col justify-between group cursor-pointer"
+            >
+              <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/40 w-fit mb-4 group-hover:scale-105 transition-transform">
+                <Camera className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center justify-between">
+                  <h3 className="font-sans text-sm sm:text-base font-bold text-app-text group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                    Photo
+                  </h3>
+                  <span className="text-[9px] font-semibold text-emerald-600 uppercase">Image</span>
+                </div>
+                <p className="text-[11px] text-app-text-secondary mt-0.5">Visual attachment</p>
+              </div>
+            </button>
           </div>
-        )}
-      </section>
+
+          {/* Guided Prompt Input Studio */}
+          <div className="pt-2">
+            <ReflectionPromptCard
+              onStartWritingWithPrompt={(promptText) =>
+                onStartCapture('text', promptText)
+              }
+            />
+          </div>
+        </section>
+      )}
+
+      {/* ========================================================================= */}
+      {/* CATEGORY 2: REPORT PART (Analytics & Insights Hub)                         */}
+      {/* ========================================================================= */}
+      {(activeCategory === 'all' || activeCategory === 'report') && (
+        <section className="space-y-6 p-5 sm:p-6 rounded-2xl bg-app-surface-secondary/40 dark:bg-[#26252F]/40 border border-app-border">
+          {/* Section Header with Category Badge */}
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2.5">
+              <div className="p-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/40">
+                <BarChart3 className="w-4 h-4" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="font-sans text-base sm:text-lg font-bold text-app-text">
+                    Personal Analytics & Rhythm Report
+                  </h2>
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800/40">
+                    Report System
+                  </span>
+                </div>
+                <p className="text-xs text-app-text-secondary mt-0.5">
+                  Automated aggregation of journaling streaks, spoken audio minutes, and mindset trends
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={onNavigateToJournal}
+              className="text-xs text-[#6C4FF6] dark:text-[#856DF8] hover:underline font-semibold flex items-center gap-1 cursor-pointer"
+            >
+              <span>Explore full journal</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Analytics Visualizations: 4 metrics + curve + donut */}
+          <div>
+            <HomeAnalytics entries={entries} />
+          </div>
+
+          {/* Recent Journal Records (Report Feed) */}
+          <div className="space-y-4 pt-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-sans text-sm sm:text-base font-bold text-app-text flex items-center gap-2">
+                  <FileSpreadsheet className="w-4 h-4 text-app-text-muted" />
+                  <span>Recent Memory Logs</span>
+                </h3>
+                <p className="text-xs text-app-text-secondary">
+                  Your most recent recorded entries and transcript notes
+                </p>
+              </div>
+
+              {entries.length > 4 && (
+                <button
+                  onClick={onNavigateToJournal}
+                  className="flex items-center gap-1 text-xs font-semibold text-[#6C4FF6] dark:text-[#856DF8] hover:text-[#5B3FD4] transition-colors cursor-pointer"
+                >
+                  <span>View all ({entries.length})</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {recentEntries.length === 0 ? (
+              <div className="bg-white dark:bg-[#201F28] border border-app-border rounded-card p-10 text-center space-y-4 shadow-subtle">
+                <div className="w-12 h-12 rounded-2xl bg-[#F1EEFF] dark:bg-[#6C4FF6]/20 text-[#6C4FF6] dark:text-[#856DF8] flex items-center justify-center mx-auto">
+                  <BookOpen className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-sans text-lg font-bold text-app-text">
+                    No memories recorded yet
+                  </h3>
+                  <p className="text-xs sm:text-sm text-app-text-secondary max-w-sm mx-auto mt-1">
+                    Capture your first voice note, written reflection, or video journal above.
+                  </p>
+                </div>
+                <Button
+                  onClick={() => onStartCapture('text')}
+                  leftIcon={<Plus className="w-4 h-4" />}
+                >
+                  Start journaling
+                </Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {recentEntries.map((entry) => (
+                  <JournalCard
+                    key={entry.id}
+                    entry={entry}
+                    onOpen={onOpenEntry}
+                    onEdit={onEditEntry}
+                    onDelete={onDeleteEntry}
+                    onToggleFavorite={onToggleFavorite}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
     </div>
   );
 };
+
