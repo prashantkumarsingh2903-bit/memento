@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Warm Neutral Palette (Light) */
+  --color-warm-bg: #FAF7F2;
+  --color-warm-card: #FFFFFF;
+  --color-warm-card-subtle: #F4EFEA;
+  --color-warm-border: #E8E2D8;
+  --color-warm-border-strong: #D5CCC0;
+  --color-warm-text: #24211D;
+  --color-warm-muted: #736C62;
+  --color-warm-faint: #B5AEA1;
+  --color-warm-accent: #B05534;
+  --color-warm-accent-hover: #964324;
+  --color-warm-accent-light: #F7EDE7;
+  --color-warm-accent-glow: rgba(176, 85, 52, 0.2);
+}
+
+.dark {
+  /* Warm Carbon Palette (Dark) */
+  --color-warm-bg: #141311;
+  --color-warm-card: #1D1C19;
+  --color-warm-card-subtle: #252320;
+  --color-warm-border: #2C2A26;
+  --color-warm-border-strong: #3D3934;
+  --color-warm-text: #EFECE6;
+  --color-warm-muted: #9C968B;
+  --color-warm-faint: #5C574F;
+  --color-warm-accent: #D26E4B;
+  --color-warm-accent-hover: #E07E5B;
+  --color-warm-accent-light: #342019;
+  --color-warm-accent-glow: rgba(210, 110, 75, 0.25);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh;
+  margin: 0;
+  background-color: var(--color-warm-bg);
+  color: var(--color-warm-text);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Custom subtle scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-warm-border-strong);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-warm-muted);
+}
+
+/* Focus styling */
+:focus-visible {
+  outline: 2px solid var(--color-warm-accent);
+  outline-offset: 2px;
+}
+
+/* Audio Waveform animation */
+@keyframes soundwave {
+  0% {
+    height: 6px;
+  }
+  50% {
+    height: 28px;
+  }
+  100% {
+    height: 10px;
+  }
+}
+
+.soundwave-bar {
+  animation: soundwave 1.1s ease-in-out infinite alternate;
+}
