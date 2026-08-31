@@ -51,19 +51,45 @@ export const Home: React.FC<HomePageProps> = ({
   };
 
   const recentEntries = entries.slice(0, 4);
+  const displayName = profile.name?.trim() ? profile.name.trim().split(' ')[0] : 'Friend';
+  const initials = profile.name
+    ? profile.name
+        .split(' ')
+        .map((n) => n[0])
+        .slice(0, 2)
+        .join('')
+        .toUpperCase()
+    : 'ME';
 
   return (
     <div className="space-y-10 max-w-4xl mx-auto">
       {/* 1. Welcoming Hero */}
       <section className="space-y-6">
-        <div>
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-warm-text">
-            {getGreeting()},{' '}
-            <span className="italic font-normal">{profile.name.split(' ')[0]}</span>.
-          </h1>
-          <p className="text-sm sm:text-base text-warm-muted mt-2">
-            How are you feeling right now?
-          </p>
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-warm-text">
+              {getGreeting()},{' '}
+              <span className="italic font-normal">{displayName}</span>.
+            </h1>
+            <p className="text-sm sm:text-base text-warm-muted mt-2">
+              {profile.bio || 'How are you feeling right now?'}
+            </p>
+          </div>
+
+          {/* Hero Avatar pill */}
+          <div className="shrink-0 hidden sm:block">
+            {profile.avatarUrl ? (
+              <img
+                src={profile.avatarUrl}
+                alt={profile.name}
+                className="w-16 h-16 rounded-full object-cover border-2 border-warm-border shadow-soft"
+              />
+            ) : (
+              <div className="w-16 h-16 rounded-full bg-warm-accent-light text-warm-accent font-serif text-xl font-semibold flex items-center justify-center border-2 border-warm-border shadow-soft">
+                {initials}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Mood Selector */}

@@ -125,14 +125,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
           onClick={() => onNavigate('settings')}
           className="w-full flex items-center gap-3 p-2 rounded-2xl hover:bg-warm-card-subtle transition-colors text-left group"
         >
-          <img
-            src={profile.avatarUrl}
-            alt={profile.name}
-            className="w-9 h-9 rounded-full object-cover border border-warm-border shrink-0 group-hover:scale-105 transition-transform"
-          />
+          {profile.avatarUrl ? (
+            <img
+              src={profile.avatarUrl}
+              alt={profile.name}
+              className="w-9 h-9 rounded-full object-cover border border-warm-border shrink-0 group-hover:scale-105 transition-transform"
+            />
+          ) : (
+            <div className="w-9 h-9 rounded-full bg-warm-accent-light text-warm-accent font-semibold text-xs flex items-center justify-center border border-warm-border shrink-0">
+              {profile.name
+                ? profile.name
+                    .split(' ')
+                    .map((n) => n[0])
+                    .slice(0, 2)
+                    .join('')
+                    .toUpperCase()
+                : 'ME'}
+            </div>
+          )}
           <div className="flex-1 min-w-0">
             <p className="text-xs font-semibold text-warm-text truncate">
-              {profile.name}
+              {profile.name || 'Your Profile'}
             </p>
             <p className="text-[11px] text-warm-muted truncate">
               Private & Local

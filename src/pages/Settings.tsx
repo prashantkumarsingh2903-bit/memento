@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   User,
   Shield,
@@ -14,22 +14,68 @@ import {
   FileText,
   Sliders,
   Sparkles,
+  Image as ImageIcon,
+  X,
 } from 'lucide-react';
 import type { UserProfile, EntryType } from '../types';
 import { storageService } from '../services/storage/storageService';
 import { Button } from '../components/common/Button';
 import { MoodSelector } from '../components/common/MoodSelector';
 
+const PRESET_AVATARS = [
+  {
+    name: 'Elena',
+    url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+  },
+  {
+    name: 'Marcus',
+    url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+  },
+  {
+    name: 'Siddharth',
+    url: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80',
+  },
+  {
+    name: 'Aria',
+    url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80',
+  },
+  {
+    name: 'Julian',
+    url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
+  },
+  {
+    name: 'Chloe',
+    url: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80',
+  },
+  {
+    name: 'Mira',
+    url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
+  },
+];
+
 interface SettingsPageProps {
+  currentProfile: UserProfile;
+  onUpdateProfile: (updated: UserProfile) => void;
   onRefreshEntries: () => void;
 }
 
-export const Settings: React.FC<SettingsPageProps> = ({ onRefreshEntries }) => {
-  const [profile, setProfile] = useState<UserProfile>(storageService.getProfile());
+export const Settings: React.FC<SettingsPageProps> = ({
+  currentProfile,
+  onUpdateProfile,
+  onRefreshEntries,
+}) => {
+  const [profile, setProfile] = useState<UserProfile>(currentProfile);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [micStatus, setMicStatus] = useState<'checking' | 'granted' | 'denied' | 'prompt'>('checking');
   const [camStatus, setCamStatus] = useState<'checking' | 'granted' | 'denied' | 'prompt'>('checking');
   const [clearConfirmOpen, setClearConfirmOpen] = useState(false);
+  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Sync internal state if currentProfile prop changes
+  useEffect(() => {
+    setProfile(currentProfile);
+  }, [currentProfile]);
 
   useEffect(() => {
     checkPermissions();
@@ -66,6 +112,7 @@ export const Settings: React.FC<SettingsPageProps> = ({ onRefreshEntries }) => {
   const handleProfileChange = (updates: Partial<UserProfile>) => {
     const updated = storageService.updateProfile(updates);
     setProfile(updated);
+    onUpdateProfile(updated);
 
     // Apply dark mode if theme changes
     if (updates.theme) {
@@ -74,6 +121,24 @@ export const Settings: React.FC<SettingsPageProps> = ({ onRefreshEntries }) => {
 
     setSavedSuccess(true);
     setTimeout(() => setSavedSuccess(false), 2000);
+  };
+
+  const handleAvatarFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file (PNG, JPEG, WebP, etc.).');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target?.result as string;
+      handleProfileChange({ avatarUrl: dataUrl });
+      setIsAvatarModalOpen(false);
+    };
+    reader.readAsDataURL(file);
   };
 
   const applyTheme = (theme: 'light' | 'dark' | 'system') => {
@@ -147,7 +212,9 @@ export const Settings: React.FC<SettingsPageProps> = ({ onRefreshEntries }) => {
       const content = ev.target?.result as string;
       const success = storageService.importData(content);
       if (success) {
-        setProfile(storageService.getProfile());
+        const freshProfile = storageService.getProfile();
+        setProfile(freshProfile);
+        onUpdateProfile(freshProfile);
         onRefreshEntries();
         alert('Data imported successfully!');
       } else {
@@ -161,7 +228,9 @@ export const Settings: React.FC<SettingsPageProps> = ({ onRefreshEntries }) => {
   const handleResetDemo = () => {
     if (window.confirm('Reset journal entries and profile to initial sample memories?')) {
       storageService.resetToDemo();
-      setProfile(storageService.getProfile());
+      const freshProfile = storageService.getProfile();
+      setProfile(freshProfile);
+      onUpdateProfile(freshProfile);
       onRefreshEntries();
     }
   };
@@ -170,11 +239,22 @@ export const Settings: React.FC<SettingsPageProps> = ({ onRefreshEntries }) => {
   const handleClearAll = async () => {
     await storageService.clearAll();
     setClearConfirmOpen(false);
-    setProfile(storageService.getProfile());
+    const freshProfile = storageService.getProfile();
+    setProfile(freshProfile);
+    onUpdateProfile(freshProfile);
     onRefreshEntries();
   };
 
   const entriesCount = storageService.getEntries().length;
+
+  const initials = profile.name
+    ? profile.name
+        .split(' ')
+        .map((n) => n[0])
+        .slice(0, 2)
+        .join('')
+        .toUpperCase()
+    : 'ME';
 
   return (
     <div className="space-y-10 max-w-4xl mx-auto animate-fade-in pb-12">
@@ -196,11 +276,11 @@ export const Settings: React.FC<SettingsPageProps> = ({ onRefreshEntries }) => {
           )}
         </div>
         <p className="text-sm sm:text-base text-warm-muted max-w-xl leading-relaxed">
-          Manage your personal profile, mindful reflection preferences, appearance, and local-first data.
+          Manage your personal profile, photo, mindful reflection preferences, appearance, and local-first data.
         </p>
       </section>
 
-      {/* 1. Profile Section */}
+      {/* 1. Profile & Avatar Section */}
       <section className="bg-warm-card border border-warm-border rounded-3xl p-6 sm:p-8 shadow-subtle space-y-6">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-2xl bg-warm-accent-light text-warm-accent">
@@ -211,7 +291,72 @@ export const Settings: React.FC<SettingsPageProps> = ({ onRefreshEntries }) => {
               Personal Profile
             </h2>
             <p className="text-xs text-warm-muted">
-              How Memento personalizes your reflective greeting
+              Personalize your name, reflective greeting, and profile picture
+            </p>
+          </div>
+        </div>
+
+        {/* Profile Picture & Name Row */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 p-4 rounded-2xl bg-warm-card-subtle border border-warm-border">
+          <div className="relative group">
+            {profile.avatarUrl ? (
+              <img
+                src={profile.avatarUrl}
+                alt={profile.name}
+                className="w-20 h-20 rounded-full object-cover border-2 border-warm-border shadow-soft group-hover:opacity-90 transition-opacity"
+              />
+            ) : (
+              <div className="w-20 h-20 rounded-full bg-warm-accent-light text-warm-accent font-serif text-2xl font-semibold flex items-center justify-center border-2 border-warm-border shadow-soft">
+                {initials}
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={() => setIsAvatarModalOpen(true)}
+              className="absolute -bottom-1 -right-1 p-2 rounded-full bg-warm-accent text-white shadow-subtle hover:bg-warm-accent/90 transition-transform active:scale-95 cursor-pointer"
+              title="Change profile photo"
+            >
+              <Camera className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <div className="flex-1 space-y-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsAvatarModalOpen(true)}
+                leftIcon={<ImageIcon className="w-3.5 h-3.5 text-warm-accent" />}
+              >
+                Change Photo
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                leftIcon={<Upload className="w-3.5 h-3.5" />}
+              >
+                Upload from Device
+              </Button>
+              {profile.avatarUrl && (
+                <button
+                  type="button"
+                  onClick={() => handleProfileChange({ avatarUrl: '' })}
+                  className="text-xs text-rose-500 hover:text-rose-600 px-2.5 py-1.5 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                >
+                  Remove Photo
+                </button>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarFileUpload}
+                className="hidden"
+              />
+            </div>
+            <p className="text-[11px] text-warm-faint">
+              Choose from aesthetic curated portraits or upload any image from your camera/files.
             </p>
           </div>
         </div>
@@ -225,7 +370,8 @@ export const Settings: React.FC<SettingsPageProps> = ({ onRefreshEntries }) => {
               type="text"
               value={profile.name}
               onChange={(e) => handleProfileChange({ name: e.target.value })}
-              className="w-full bg-warm-card-subtle border border-warm-border rounded-2xl px-4 py-2.5 text-sm text-warm-text outline-none focus:border-warm-accent transition-colors"
+              placeholder="Enter your name..."
+              className="w-full bg-warm-card-subtle border border-warm-border rounded-2xl px-4 py-2.5 text-sm text-warm-text outline-none focus:border-warm-accent transition-colors font-medium"
             />
           </div>
 
@@ -377,7 +523,7 @@ export const Settings: React.FC<SettingsPageProps> = ({ onRefreshEntries }) => {
               Privacy & Hardware Status
             </h2>
             <p className="text-xs text-warm-muted">
-              All journal entries and media remain 100% on your local device
+              All journal entries, media, and profile info remain 100% on your local device
             </p>
           </div>
         </div>
@@ -492,6 +638,92 @@ export const Settings: React.FC<SettingsPageProps> = ({ onRefreshEntries }) => {
           </div>
         </div>
       </section>
+
+      {/* Profile Photo Selector Modal */}
+      {isAvatarModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/70 backdrop-blur-sm animate-fade-in">
+          <div className="bg-warm-card border border-warm-border rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-elevated space-y-5 animate-slide-up">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-serif text-2xl font-medium text-warm-text">
+                  Choose Profile Photo
+                </h3>
+                <p className="text-xs text-warm-muted mt-0.5">
+                  Pick a curated profile or upload your own picture
+                </p>
+              </div>
+              <button
+                onClick={() => setIsAvatarModalOpen(false)}
+                className="p-1.5 rounded-full text-warm-muted hover:text-warm-text hover:bg-warm-card-subtle transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Curated Presets Grid */}
+            <div className="space-y-2">
+              <span className="text-xs font-semibold uppercase tracking-wider text-warm-muted block">
+                Curated Portraits
+              </span>
+              <div className="grid grid-cols-4 sm:grid-cols-4 gap-3">
+                {PRESET_AVATARS.map((avatar) => (
+                  <button
+                    key={avatar.name}
+                    type="button"
+                    onClick={() => {
+                      handleProfileChange({ avatarUrl: avatar.url });
+                      setIsAvatarModalOpen(false);
+                    }}
+                    className={`p-1 rounded-2xl border transition-all hover:scale-105 flex flex-col items-center gap-1.5 ${
+                      profile.avatarUrl === avatar.url
+                        ? 'border-warm-accent ring-2 ring-warm-accent/30 shadow-subtle'
+                        : 'border-warm-border hover:border-warm-border-strong'
+                    }`}
+                  >
+                    <img
+                      src={avatar.url}
+                      alt={avatar.name}
+                      className="w-14 h-14 rounded-xl object-cover"
+                    />
+                    <span className="text-[11px] font-medium text-warm-text truncate">
+                      {avatar.name}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Custom Upload or Reset */}
+            <div className="pt-3 border-t border-warm-border space-y-3">
+              <Button
+                variant="primary"
+                size="md"
+                onClick={() => {
+                  fileInputRef.current?.click();
+                }}
+                leftIcon={<Upload className="w-4 h-4" />}
+                className="w-full justify-center"
+              >
+                Upload Photo from Device
+              </Button>
+
+              {profile.avatarUrl && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    handleProfileChange({ avatarUrl: '' });
+                    setIsAvatarModalOpen(false);
+                  }}
+                  className="w-full justify-center text-warm-muted"
+                >
+                  Use Default Initials ({initials})
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Confirmation Modal for Clearing Data */}
       {clearConfirmOpen && (

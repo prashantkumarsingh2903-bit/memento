@@ -206,7 +206,11 @@ export default function App() {
 
       {/* 5. Settings View */}
       {activeView === 'settings' && (
-        <Settings onRefreshEntries={refreshProfile} />
+        <Settings
+          currentProfile={profile}
+          onUpdateProfile={(updated) => setProfile(updated)}
+          onRefreshEntries={refreshProfile}
+        />
       )}
 
       {/* 6. New Entry / Editor View */}
