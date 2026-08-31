@@ -94,7 +94,12 @@ export const Home: React.FC<HomePageProps> = ({
         </div>
       </section>
 
-      {/* 2. Featured Capture Hero Cards */}
+      {/* 2. Quote of the Day (Directly under the Good Morning / Welcome area) */}
+      <section>
+        <QuoteOfTheDay onReflect={handleReflectOnQuote} />
+      </section>
+
+      {/* 3. Featured Capture Hero Cards */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="font-sans text-base sm:text-lg font-bold text-app-text">
@@ -170,14 +175,13 @@ export const Home: React.FC<HomePageProps> = ({
         </div>
       </section>
 
-      {/* 3. Analytics & Personal Insights Metrics */}
+      {/* 4. Analytics & Personal Insights Metrics */}
       <section>
         <HomeAnalytics entries={entries} />
       </section>
 
-      {/* 4. Quote of the Day & AI Prompt */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <QuoteOfTheDay onReflect={handleReflectOnQuote} />
+      {/* 5. AI Reflection Prompt */}
+      <section>
         <ReflectionPromptCard
           onStartWritingWithPrompt={(promptText) =>
             onStartCapture('text', promptText)
@@ -185,7 +189,7 @@ export const Home: React.FC<HomePageProps> = ({
         />
       </section>
 
-      {/* 5. Recent Memories */}
+      {/* 6. Recent Memories */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
