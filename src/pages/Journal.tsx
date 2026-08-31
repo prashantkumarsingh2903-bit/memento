@@ -389,6 +389,7 @@ export const Journal: React.FC<JournalPageProps> = ({
             onEditEntry={onEditEntry}
             onDeleteEntry={onDeleteEntry}
             onToggleFavorite={onToggleFavorite}
+            onStartCapture={onStartCapture}
           />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

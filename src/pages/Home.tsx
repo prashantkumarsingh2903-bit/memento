@@ -284,6 +284,7 @@ export const Home: React.FC<HomePageProps> = ({
               onEditEntry={onEditEntry}
               onDeleteEntry={onDeleteEntry}
               onToggleFavorite={onToggleFavorite}
+              onStartCapture={onStartCapture}
             />
           )}
         </div>
