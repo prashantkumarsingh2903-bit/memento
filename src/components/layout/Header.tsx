@@ -3,6 +3,7 @@ import { Calendar, Sparkles, Settings, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import type { ActiveView } from '../../types';
 import { Button } from '../common/Button';
+import { InstallAppPrompt } from '../common/InstallAppPrompt';
 
 interface HeaderProps {
   activeView: ActiveView;
@@ -57,7 +58,10 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      <div className="flex items-center gap-2.5">
+      <div className="flex items-center gap-2 sm:gap-2.5">
+        {/* Install Mobile / Desktop App Trigger */}
+        <InstallAppPrompt variant="header" />
+
         {activeView !== 'reflect' && (
           <button
             onClick={() => onNavigate('reflect')}
